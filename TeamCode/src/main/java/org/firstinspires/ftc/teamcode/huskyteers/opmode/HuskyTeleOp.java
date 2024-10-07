@@ -13,7 +13,7 @@ public class HuskyTeleOp extends HuskyBot {
     @Override
     public void runOpMode() {
         instantiateMotors(new Pose2d(0, 0, 0));
-        initAprilTag();
+        initVisionPortal();
 
         waitForStart();
         if (isStopRequested()) return;
@@ -33,8 +33,6 @@ public class HuskyTeleOp extends HuskyBot {
         while (opModeIsActive() && !isStopRequested()) {
             gamepad1Utils.processUpdates(gamepad1);
             gamepad2Utils.processUpdates(gamepad2);
-
-            localizeRobot();
 
             double speed = (0.35 + 0.5 * gamepad1.left_trigger);
             if (usingFieldCentric.get()) {
