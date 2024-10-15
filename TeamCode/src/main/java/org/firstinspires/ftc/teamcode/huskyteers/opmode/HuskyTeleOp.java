@@ -27,8 +27,9 @@ public class HuskyTeleOp extends HuskyBot {
             usingFieldCentric.set(!usingFieldCentric.get());
             gamepad1.rumble(200);
         });
-        gamepad1Utils.addRisingEdge("dpad_up", (pressed) -> visionPortal.stopStreaming());
-        gamepad1Utils.addRisingEdge("dpad_up", (pressed) -> visionPortal.resumeStreaming());
+        gamepad1Utils.addRisingEdge("dpad_up", (pressed) -> {
+            visionPortal.resumeStreaming();
+        });
 
         while (opModeIsActive() && !isStopRequested()) {
             gamepad1Utils.processUpdates(gamepad1);

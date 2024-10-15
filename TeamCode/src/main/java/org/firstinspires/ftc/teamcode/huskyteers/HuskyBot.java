@@ -15,6 +15,8 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
+import org.firstinspires.ftc.vision.opencv.ColorRange;
+import org.firstinspires.ftc.vision.opencv.ImageRegion;
 
 import java.util.ArrayList;
 import java.util.OptionalDouble;
@@ -56,7 +58,13 @@ abstract public class HuskyBot extends LinearOpMode {
 
     public void initColorBlob() {
         colorBlob = new ColorBlobLocatorProcessor.Builder()
+                .setTargetColorRange(ColorRange.RED)         // use a predefined color match
+                .setContourMode(ColorBlobLocatorProcessor.ContourMode.EXTERNAL_ONLY)    // exclude blobs inside blobs
+                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.5, 0.5, 0.5, -0.5))  // search central 1/4 of camera view
+                .setDrawContours(true)                        // Show contours on the Stream Preview
+                .setBlurSize(5)                               // Smooth the transitions between different colors in image
                 .build();
+//        colorBlob.addFilter();
     }
 
     public void initAprilTag() {
@@ -74,6 +82,7 @@ abstract public class HuskyBot extends LinearOpMode {
         initColorBlob();
 
         builder.addProcessor(aprilTag);
+        builder.addProcessor(colorBlob);
 
         visionPortal = builder.build();
     }
