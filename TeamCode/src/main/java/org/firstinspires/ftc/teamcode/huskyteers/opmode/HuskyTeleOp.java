@@ -13,6 +13,8 @@ public class HuskyTeleOp extends HuskyBot {
     @Override
     public void runOpMode() {
         instantiateMotors(new Pose2d(0, 0, 0));
+        initVisionPortal();
+
         waitForStart();
         if (isStopRequested()) return;
         GamepadUtils gamepad1Utils = new GamepadUtils();
@@ -24,6 +26,9 @@ public class HuskyTeleOp extends HuskyBot {
         gamepad1Utils.addRisingEdge("a", (pressed) -> {
             usingFieldCentric.set(!usingFieldCentric.get());
             gamepad1.rumble(200);
+        });
+        gamepad1Utils.addRisingEdge("dpad_up", (pressed) -> {
+            visionPortal.resumeStreaming();
         });
 
         while (opModeIsActive() && !isStopRequested()) {
@@ -40,6 +45,9 @@ public class HuskyTeleOp extends HuskyBot {
             }
 
             telemetry.update();
+            sleep(20);
         }
+        visionPortal.close();
+
     }
 }
