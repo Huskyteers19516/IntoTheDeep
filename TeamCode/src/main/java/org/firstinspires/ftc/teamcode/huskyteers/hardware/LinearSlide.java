@@ -19,7 +19,7 @@ public class LinearSlide {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             if (!initialized) {
-                motor.setPower(0.8);
+                motor.setPower(0.1);
                 initialized = true;
             }
 

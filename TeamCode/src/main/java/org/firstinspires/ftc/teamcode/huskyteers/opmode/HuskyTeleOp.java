@@ -5,20 +5,27 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.huskyteers.HuskyBot;
 import org.firstinspires.ftc.teamcode.huskyteers.utils.GamepadUtils;
-
+import com.qualcomm.robotcore.hardware.DcMotor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @TeleOp
 public class HuskyTeleOp extends HuskyBot {
     @Override
     public void runOpMode() {
-        instantiateMotors(new Pose2d(0, 0, 0));
-        initVisionPortal();
+        // Initialize the slide motor
+        DcMotor LS = hardwareMap.get(DcMotor.class, "slide");
 
+        // Initialize robot components
+        instantiateMotors(new Pose2d(0, 0, 0));
+        initPIDController();
+
+        // Wait for the start signal
         waitForStart();
         if (isStopRequested()) return;
+
         GamepadUtils gamepad1Utils = new GamepadUtils();
         GamepadUtils gamepad2Utils = new GamepadUtils();
+
         gamepad1Utils.addRisingEdge("start", (pressed) -> drive.pose = new Pose2d(this.drive.pose.position, 0));
 
         AtomicBoolean usingFieldCentric = new AtomicBoolean(false);
@@ -27,10 +34,21 @@ public class HuskyTeleOp extends HuskyBot {
             usingFieldCentric.set(!usingFieldCentric.get());
             gamepad1.rumble(200);
         });
+
         gamepad1Utils.addRisingEdge("dpad_up", (pressed) -> {
             visionPortal.resumeStreaming();
         });
 
+        // Adding controls for the Linear Slide motor
+        gamepad2Utils.addRisingEdge("dpad_down", (pressed) -> {
+            LS.setPower(-0.1); // Move the slide down slowly
+        });
+
+        gamepad2Utils.addRisingEdge("dpad_up", (pressed) -> {
+            LS.setPower(0.1); // Move the slide up slowly
+        });
+
+        // Main loop
         while (opModeIsActive() && !isStopRequested()) {
             gamepad1Utils.processUpdates(gamepad1);
             gamepad2Utils.processUpdates(gamepad2);
@@ -44,10 +62,13 @@ public class HuskyTeleOp extends HuskyBot {
                 driveRobot(gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, speed);
             }
 
-            telemetry.update();
-            sleep(20);
-        }
-        visionPortal.close();
+            // Add telemetry for the Linear Slide encoder value
+            telemetry.addData("Linear Slide Encoder", LS.getCurrentPosition());
 
+            telemetry.update();
+        }
+
+        // Close the vision portal if it was used
+        visionPortal.close();
     }
 }
