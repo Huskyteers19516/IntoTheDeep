@@ -17,6 +17,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 import org.firstinspires.ftc.vision.opencv.ColorRange;
 import org.firstinspires.ftc.vision.opencv.ImageRegion;
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.LinearSlide;
 
 import java.util.ArrayList;
 import java.util.OptionalDouble;
@@ -55,7 +56,11 @@ abstract public class HuskyBot extends LinearOpMode {
     public AprilTagProcessor aprilTag;
     public ColorBlobLocatorProcessor colorBlob;
 
+    public LinearSlide linearSlide;
 
+    public void initLinearSlide(){
+        linearSlide = new LinearSlide()
+    }
     public void initColorBlob() {
         colorBlob = new ColorBlobLocatorProcessor.Builder()
                 .setTargetColorRange(ColorRange.RED)         // use a predefined color match
