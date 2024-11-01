@@ -17,6 +17,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 import org.firstinspires.ftc.vision.opencv.ColorRange;
 import org.firstinspires.ftc.vision.opencv.ImageRegion;
+import org.firstinspires.ftc.teamcode.huskyteers.utils.PIDController;
 
 import java.util.ArrayList;
 import java.util.OptionalDouble;
@@ -54,6 +55,9 @@ abstract public class HuskyBot extends LinearOpMode {
     public VisionPortal visionPortal;
     public AprilTagProcessor aprilTag;
     public ColorBlobLocatorProcessor colorBlob;
+
+    public PIDController pid = new PIDController(0.1, 0.1, 0.1);
+
 
 
     public void initColorBlob() {
