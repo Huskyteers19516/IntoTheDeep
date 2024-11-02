@@ -58,9 +58,9 @@ abstract public class HuskyBot extends LinearOpMode {
 
     public LinearSlide linearSlide;
 
-    public void initLinearSlide(){
-        linearSlide = new LinearSlide()
-    }
+//    public void initLinearSlide(){
+//        linearSlide = new LinearSlide();
+//    }
     public void initColorBlob() {
         colorBlob = new ColorBlobLocatorProcessor.Builder()
                 .setTargetColorRange(ColorRange.RED)         // use a predefined color match
