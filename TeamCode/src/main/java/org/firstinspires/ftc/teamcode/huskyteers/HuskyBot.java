@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.ArmSlide;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -22,7 +23,15 @@ import org.firstinspires.ftc.teamcode.huskyteers.hardware.LinearSlide;
 import java.util.ArrayList;
 import java.util.OptionalDouble;
 
+import kotlin.NotImplementedError;
+
+/**
+ * Base class for any OpMode, whether it's teleop or autonomous.
+ */
 abstract public class HuskyBot extends LinearOpMode {
+    public HuskyBot() {
+        throw new NotImplementedError();
+    }
     /**
      * Variables to store the position and orientation of the camera on the robot. Setting these
      * values requires a definition of the axes of the camera and robot:
@@ -52,6 +61,7 @@ abstract public class HuskyBot extends LinearOpMode {
     private final YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
         0, -90, 0, 0);
     public MecanumDrive drive;
+    public ArmSlide armSlide;
     public VisionPortal visionPortal;
     public AprilTagProcessor aprilTag;
     public ColorBlobLocatorProcessor colorBlob;
@@ -93,6 +103,7 @@ abstract public class HuskyBot extends LinearOpMode {
     }
 
     public void instantiateMotors(Pose2d pose) {
+        armSlide = new ArmSlide(hardwareMap);
         drive = new MecanumDrive(hardwareMap, pose);
     }
 
