@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.huskyteers.HuskyBot;
 import org.firstinspires.ftc.teamcode.huskyteers.hardware.ArmSlide;
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.Claw;
 import org.firstinspires.ftc.teamcode.huskyteers.utils.GamepadUtils;
 
 import java.util.ArrayList;
@@ -18,9 +19,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class HuskyTeleOp extends HuskyBot {
     final private FtcDashboard dash = FtcDashboard.getInstance();
     private List<Action> runningActions = new ArrayList<>();
+    boolean savedStatus = false;
 
     @Override
     public void runOpMode() {
+
+
         instantiateMotors(new Pose2d(0, 0, 0));
         initVisionPortal();
 
@@ -35,6 +39,11 @@ public class HuskyTeleOp extends HuskyBot {
 
         gamepad1Utils.addRisingEdge("right_bumper", (pressed) -> armSlide.setPosition(ArmSlide.EXTEND_POSITION));
         gamepad1Utils.addRisingEdge("left_bumper", (pressed) -> armSlide.setPosition(ArmSlide.RETRACT_POSITION));
+
+        gamepad1Utils.addRisingEdge("x", (pressed) -> claw.openClaw());
+        gamepad1Utils.addRisingEdge("y", (pressed) -> claw.closeClaw());
+
+
 
         gamepad1Utils.addRisingEdge("a", (pressed) -> {
             usingFieldCentric.set(!usingFieldCentric.get());
