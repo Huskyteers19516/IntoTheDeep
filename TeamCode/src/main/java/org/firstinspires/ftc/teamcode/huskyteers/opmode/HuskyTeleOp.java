@@ -19,12 +19,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class HuskyTeleOp extends HuskyBot {
     final private FtcDashboard dash = FtcDashboard.getInstance();
     private List<Action> runningActions = new ArrayList<>();
-    boolean savedStatus = false;
 
     @Override
     public void runOpMode() {
-
-
         instantiateMotors(new Pose2d(0, 0, 0));
         initVisionPortal();
 
@@ -42,8 +39,6 @@ public class HuskyTeleOp extends HuskyBot {
 
         gamepad1Utils.addRisingEdge("x", (pressed) -> claw.openClaw());
         gamepad1Utils.addRisingEdge("y", (pressed) -> claw.closeClaw());
-
-
 
         gamepad1Utils.addRisingEdge("a", (pressed) -> {
             usingFieldCentric.set(!usingFieldCentric.get());

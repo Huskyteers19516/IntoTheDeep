@@ -8,17 +8,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Claw {
-
     public static final int OPEN_POSITION = 12;
     public static final int CLOSE_POSITION = 0;
     public static final double eps = 1e-5;
-    public static final Servo.Direction FORWARD = Servo.Direction.FORWARD;
-    public static final Servo.Direction REVERSE = Servo.Direction.REVERSE;
     private final Servo servo;
 
     public Claw(HardwareMap hardwareMap, String name) {
         servo = hardwareMap.get(Servo.class, name);
-        servo.setDirection(FORWARD);
     }
 
     public boolean checkPosition(double s, double dest) {
@@ -37,8 +33,6 @@ public class Claw {
                 return checkPosition(getPosition(), OPEN_POSITION);
             }
         };
-
-
     }
 
     public Action closeClaw() {
