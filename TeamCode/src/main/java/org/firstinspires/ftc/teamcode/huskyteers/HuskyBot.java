@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.huskyteers.hardware.ArmSlide;
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.Claw;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -61,6 +62,7 @@ abstract public class HuskyBot extends LinearOpMode {
         0, -90, 0, 0);
     public MecanumDrive drive;
     public ArmSlide armSlide;
+    public Claw claw;
     public VisionPortal visionPortal;
     public AprilTagProcessor aprilTag;
     public ColorBlobLocatorProcessor colorBlob;
@@ -99,6 +101,7 @@ abstract public class HuskyBot extends LinearOpMode {
 
     public void instantiateMotors(Pose2d pose) {
         armSlide = new ArmSlide(hardwareMap);
+        claw = new Claw(hardwareMap, "claw");
         drive = new MecanumDrive(hardwareMap, pose);
     }
 
