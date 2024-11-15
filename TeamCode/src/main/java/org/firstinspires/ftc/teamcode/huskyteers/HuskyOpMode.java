@@ -19,7 +19,6 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 import org.firstinspires.ftc.vision.opencv.ColorRange;
 import org.firstinspires.ftc.vision.opencv.ImageRegion;
-import org.firstinspires.ftc.teamcode.huskyteers.hardware.LinearSlide;
 
 import java.util.ArrayList;
 import java.util.OptionalDouble;
@@ -29,10 +28,7 @@ import kotlin.NotImplementedError;
 /**
  * Base class for any OpMode, whether it's teleop or autonomous.
  */
-abstract public class HuskyBot extends LinearOpMode {
-    public HuskyBot() {
-        throw new NotImplementedError();
-    }
+abstract public class HuskyOpMode extends LinearOpMode {
     /**
      * Variables to store the position and orientation of the camera on the robot. Setting these
      * values requires a definition of the axes of the camera and robot:
@@ -57,10 +53,8 @@ abstract public class HuskyBot extends LinearOpMode {
      * it's pointing straight left, -90 degrees for straight right, etc. You can also set the roll
      * to +/-90 degrees if it's vertical, or 180 degrees if it's upside-down.
      */
-    private final Position cameraPosition = new Position(DistanceUnit.INCH,
-        0, 0, 0, 0);
-    private final YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
-        0, -90, 0, 0);
+    private final Position cameraPosition = new Position(DistanceUnit.INCH, 0, 0, 0, 0);
+    private final YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES, 0, -90, 0, 0);
     public MecanumDrive drive;
     public ArmSlide armSlide;
     public Claw claw;
@@ -68,26 +62,22 @@ abstract public class HuskyBot extends LinearOpMode {
     public AprilTagProcessor aprilTag;
     public ColorBlobLocatorProcessor colorBlob;
 
-    public LinearSlide linearSlide;
+    public HuskyOpMode() {
+        throw new NotImplementedError();
+    }
 
-//    public void initLinearSlide(){
-//        linearSlide = new LinearSlide();
-//    }
     public void initColorBlob() {
-        colorBlob = new ColorBlobLocatorProcessor.Builder()
-                .setTargetColorRange(ColorRange.RED)         // use a predefined color match
+        colorBlob = new ColorBlobLocatorProcessor.Builder().setTargetColorRange(ColorRange.RED)         // use a predefined color match
                 .setContourMode(ColorBlobLocatorProcessor.ContourMode.EXTERNAL_ONLY)    // exclude blobs inside blobs
                 .setRoi(ImageRegion.asUnityCenterCoordinates(-0.5, 0.5, 0.5, -0.5))  // search central 1/4 of camera view
                 .setDrawContours(true)                        // Show contours on the Stream Preview
                 .setBlurSize(5)                               // Smooth the transitions between different colors in image
                 .build();
-//        colorBlob.addFilter();
+        //        colorBlob.addFilter();
     }
 
     public void initAprilTag() {
-        aprilTag = new AprilTagProcessor.Builder()
-            .setCameraPose(cameraPosition, cameraOrientation)
-            .build();
+        aprilTag = new AprilTagProcessor.Builder().setCameraPose(cameraPosition, cameraOrientation).build();
     }
 
 
@@ -111,12 +101,7 @@ abstract public class HuskyBot extends LinearOpMode {
     }
 
     public void driveRobot(double drive, double strafe, double turn, double speed) {
-        PoseVelocity2d pw = new PoseVelocity2d(
-            new Vector2d(
-                -drive * speed,
-                strafe * speed
-            ), turn * speed
-        );
+        PoseVelocity2d pw = new PoseVelocity2d(new Vector2d(-drive * speed, strafe * speed), turn * speed);
 
         this.drive.setDrivePowers(pw);
     }

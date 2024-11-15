@@ -6,9 +6,8 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.huskyteers.HuskyBot;
+import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode;
 import org.firstinspires.ftc.teamcode.huskyteers.hardware.ArmSlide;
-import org.firstinspires.ftc.teamcode.huskyteers.hardware.Claw;
 import org.firstinspires.ftc.teamcode.huskyteers.utils.GamepadUtils;
 
 import java.util.ArrayList;
@@ -16,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @TeleOp
-public class HuskyTeleOp extends HuskyBot {
+public class HuskyTeleOp extends HuskyOpMode {
     final private FtcDashboard dash = FtcDashboard.getInstance();
     private List<Action> runningActions = new ArrayList<>();
 
