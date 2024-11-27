@@ -131,7 +131,7 @@ abstract public class HuskyOpMode extends LinearOpMode {
         }
     }
 
-    public double getSampleRotation() {
+    public OptionalDouble getSampleRotation() {
         List<ColorBlobLocatorProcessor.Blob> blobs = allianceColorBlob.getBlobs();
         if (!blobs.isEmpty()) {
             ColorBlobLocatorProcessor.Blob blob = blobs.get(0);
@@ -140,11 +140,12 @@ abstract public class HuskyOpMode extends LinearOpMode {
             RotatedRect box = blob.getBoxFit();
             if (box.size.height < box.size.width) {
                 // The bounding box is horizontal
-                return -1 * box.angle + 90;
+                return OptionalDouble.of(-1 * box.angle + 90);
             } else {
                 // The bounding box is vertical
-                return -1 * box.angle;
+                return OptionalDouble.of(-1 * box.angle);
             }
         }
+        return OptionalDouble.empty();
     }
 }

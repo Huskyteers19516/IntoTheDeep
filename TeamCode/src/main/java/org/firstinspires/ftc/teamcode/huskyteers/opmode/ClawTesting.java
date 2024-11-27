@@ -6,22 +6,31 @@ import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode;
 import org.firstinspires.ftc.teamcode.huskyteers.StartInfo;
 import org.firstinspires.ftc.teamcode.huskyteers.hardware.Claw;
 
+import java.util.OptionalDouble;
+
 @TeleOp
 public class ClawTesting extends HuskyOpMode {
     @Override
     public void runOpMode() {
         initVisionPortal(StartInfo.Color.BLUE);
         claw = new Claw(hardwareMap);
+        visionPortal.resumeLiveView();
+        visionPortal.resumeStreaming();
         waitForStart();
         if (isStopRequested())
             return;
 
         while (opModeIsActive() && !isStopRequested()) {
-            double sampleRotation = getSampleRotation();
-            if (gamepad1.a) {
-                claw.rotateClaw(sampleRotation);
+            OptionalDouble sampleRotation = getSampleRotation();
+            if (sampleRotation.isPresent()) {
+                telemetry.addData("Sample rotation", sampleRotation);
+                if (gamepad1.a) {
+                    claw.rotateClaw(sampleRotation.getAsDouble());
+                }
+            } else {
+                telemetry.addData("Sample rotation", "Sample not found");
             }
-            telemetry.addData("Sample rotation", sampleRotation);
+
             telemetry.update();
             sleep(20);
         }
