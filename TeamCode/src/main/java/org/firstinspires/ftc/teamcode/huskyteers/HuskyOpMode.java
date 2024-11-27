@@ -65,9 +65,7 @@ abstract public class HuskyOpMode extends LinearOpMode {
     public ColorBlobLocatorProcessor allianceColorBlob;
     public ColorBlobLocatorProcessor neutralColorBlob;
 
-    public HuskyOpMode() {
-        throw new NotImplementedError();
-    }
+    public HuskyOpMode() {}
 
     public void initColorBlob(StartInfo.Color color) {
         ColorBlobLocatorProcessor.Builder shared = new ColorBlobLocatorProcessor.Builder()// use a predefined color match
