@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @TeleOp
-public class HuskyTeleOp extends HuskyOpMode {
+public class ClawTestingOpMode extends HuskyOpMode {
     @Override
     public void runOpMode() {
         initVisionPortal(StartInfo.Color.BLUE);
