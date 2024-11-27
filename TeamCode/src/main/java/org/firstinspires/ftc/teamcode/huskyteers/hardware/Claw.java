@@ -20,23 +20,11 @@ public class Claw {
     }
 
     /**
-     * @param angle Degrees
+     * @param angle Angle of sample in degrees counterclockwise, with 0 being to the right
+     *              (like a unit circle)
      */
     public void rotateClaw(double angle) {
-         /*
-         Rotates claw to match the angle or it's 180 degree variant, whichever is closer
-         Since it is currently a servo, passing from 0 to 1 or 1 to 0 requires going through the
-         entire range of positions.
-         https://www.tldraw.com/s/v2_c_qJ9m3Ck499qom_FbU8zcj?d=v91.496.1814.914.page
-          */
-        double target1 = angle / 360;
-        double target2 = target1 + (target1 > 0.5 ? -0.5 : 0.5);
-        double currentPosition = getClawRotatorPosition();
-        if (Math.abs(target1 - currentPosition) < Math.abs(target2 - currentPosition)) {
-            setClawRotatorPosition(target1);
-        } else {
-            setClawRotatorPosition(target2);
-        }
+        setClawRotatorPosition(angle / 180);
     }
 
     public boolean checkPosition(double s, double dest) {

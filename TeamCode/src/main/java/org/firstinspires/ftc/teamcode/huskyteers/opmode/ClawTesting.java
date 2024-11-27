@@ -17,9 +17,11 @@ public class ClawTesting extends HuskyOpMode {
             return;
 
         while (opModeIsActive() && !isStopRequested()) {
+            double sampleRotation = getSampleRotation();
             if (gamepad1.a) {
-                alignClawToSample();
+                claw.rotateClaw(sampleRotation);
             }
+            telemetry.addData("Sample rotation", sampleRotation);
             telemetry.update();
             sleep(20);
         }
