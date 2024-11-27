@@ -134,7 +134,7 @@ abstract public class HuskyOpMode extends LinearOpMode {
 
     public void alignClawToSample() {
         List<ColorBlobLocatorProcessor.Blob> blobs = allianceColorBlob.getBlobs();
-        if (blobs.get(0) != null) {
+        if (blobs.size() > 0) {
             ColorBlobLocatorProcessor.Blob blob = blobs.get(0);
             // Information on opencv bounding box: https://theailearner.com/tag/cv2-minarearect/
             // https://docs.opencv.org/4.x/dd/d49/tutorial_py_contour_features.html
