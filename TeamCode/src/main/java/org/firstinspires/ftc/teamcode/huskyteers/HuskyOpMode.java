@@ -19,8 +19,10 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 import org.firstinspires.ftc.vision.opencv.ColorRange;
 import org.firstinspires.ftc.vision.opencv.ImageRegion;
+import org.opencv.core.RotatedRect;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.OptionalDouble;
 
 import kotlin.NotImplementedError;
@@ -60,36 +62,40 @@ abstract public class HuskyOpMode extends LinearOpMode {
     public Claw claw;
     public VisionPortal visionPortal;
     public AprilTagProcessor aprilTag;
-    public ColorBlobLocatorProcessor colorBlob;
+    public ColorBlobLocatorProcessor allianceColorBlob;
+    public ColorBlobLocatorProcessor neutralColorBlob;
 
     public HuskyOpMode() {
         throw new NotImplementedError();
     }
 
-    public void initColorBlob() {
-        colorBlob = new ColorBlobLocatorProcessor.Builder().setTargetColorRange(ColorRange.RED)         // use a predefined color match
+    public void initColorBlob(StartInfo.Color color) {
+        ColorBlobLocatorProcessor.Builder shared = new ColorBlobLocatorProcessor.Builder()// use a predefined color match
                 .setContourMode(ColorBlobLocatorProcessor.ContourMode.EXTERNAL_ONLY)    // exclude blobs inside blobs
-                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.5, 0.5, 0.5, -0.5))  // search central 1/4 of camera view
+                .setRoi(ImageRegion.asUnityCenterCoordinates(-1.0, 1.0, 1.0, -1.0))  // search central 1/4 of camera view
                 .setDrawContours(true)                        // Show contours on the Stream Preview
-                .setBlurSize(5)                               // Smooth the transitions between different colors in image
+                .setBlurSize(5);
+        allianceColorBlob = shared
+                .setTargetColorRange(color.equals(StartInfo.Color.BLUE) ? ColorRange.BLUE : ColorRange.RED)
                 .build();
-        //        colorBlob.addFilter();
+        neutralColorBlob = shared
+                .setTargetColorRange(ColorRange.YELLOW)
+                .build();
     }
 
     public void initAprilTag() {
         aprilTag = new AprilTagProcessor.Builder().setCameraPose(cameraPosition, cameraOrientation).build();
     }
 
-
-    public void initVisionPortal() {
+    public void initVisionPortal(StartInfo.Color color) {
         VisionPortal.Builder builder = new VisionPortal.Builder();
 
         builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
         initAprilTag();
-        initColorBlob();
+        initColorBlob(color);
 
         builder.addProcessor(aprilTag);
-        builder.addProcessor(colorBlob);
+        builder.addProcessor(allianceColorBlob);
 
         visionPortal = builder.build();
     }
@@ -125,6 +131,23 @@ abstract public class HuskyOpMode extends LinearOpMode {
         OptionalDouble averageYaw = detections.stream().mapToDouble(aprilTagDetection -> aprilTagDetection.robotPose.getOrientation().getYaw()).average();
         if (averageX.isPresent() && averageY.isPresent() && averageYaw.isPresent()) {
             this.drive.pose = new Pose2d(averageX.getAsDouble(), averageY.getAsDouble(), averageYaw.getAsDouble());
+        }
+    }
+
+    public void alignClawToSample() {
+        List<ColorBlobLocatorProcessor.Blob> blobs = allianceColorBlob.getBlobs();
+        if (blobs.get(0) != null) {
+            ColorBlobLocatorProcessor.Blob blob = blobs.get(0);
+            // Information on opencv bounding box: https://theailearner.com/tag/cv2-minarearect/
+            // https://docs.opencv.org/4.x/dd/d49/tutorial_py_contour_features.html
+            RotatedRect box = blob.getBoxFit();
+            if (box.size.height < box.size.width) {
+                // The bounding box is horizontal
+                claw.rotateClaw(-1 * box.angle + 90);
+            } else {
+                // The bounding box is vertical
+                claw.rotateClaw(-1 * box.angle);
+            }
         }
     }
 }

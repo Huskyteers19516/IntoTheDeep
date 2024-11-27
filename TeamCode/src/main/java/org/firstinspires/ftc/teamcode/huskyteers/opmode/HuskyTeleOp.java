@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode;
+import org.firstinspires.ftc.teamcode.huskyteers.StartInfo;
 import org.firstinspires.ftc.teamcode.huskyteers.hardware.ArmSlide;
 import org.firstinspires.ftc.teamcode.huskyteers.utils.GamepadUtils;
 
@@ -22,7 +23,7 @@ public class HuskyTeleOp extends HuskyOpMode {
     @Override
     public void runOpMode() {
         instantiateMotors(new Pose2d(0, 0, 0));
-        initVisionPortal();
+        initVisionPortal(StartInfo.Color.BLUE);
 
         waitForStart();
         if (isStopRequested())
