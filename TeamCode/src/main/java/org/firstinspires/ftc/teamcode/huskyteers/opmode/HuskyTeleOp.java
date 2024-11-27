@@ -37,6 +37,8 @@ public class HuskyTeleOp extends HuskyOpMode {
         gamepad1Utils.addRisingEdge("right_bumper", (pressed) -> armSlide.setPosition(ArmSlide.EXTEND_POSITION));
         gamepad1Utils.addRisingEdge("left_bumper", (pressed) -> armSlide.setPosition(ArmSlide.RETRACT_POSITION));
 
+        gamepad1Utils.addRisingEdge("b", (pressed) -> alignClawToSample());
+
         gamepad1Utils.addRisingEdge("x", (pressed) -> claw.openClaw());
         gamepad1Utils.addRisingEdge("y", (pressed) -> claw.closeClaw());
 
