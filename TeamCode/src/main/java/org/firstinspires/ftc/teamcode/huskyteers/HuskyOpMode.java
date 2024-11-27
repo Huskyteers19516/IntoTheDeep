@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalDouble;
 
-import kotlin.NotImplementedError;
-
 /**
  * Base class for any OpMode, whether it's teleop or autonomous.
  */
@@ -65,7 +63,8 @@ abstract public class HuskyOpMode extends LinearOpMode {
     public ColorBlobLocatorProcessor allianceColorBlob;
     public ColorBlobLocatorProcessor neutralColorBlob;
 
-    public HuskyOpMode() {}
+    public HuskyOpMode() {
+    }
 
     public void initColorBlob(StartInfo.Color color) {
         ColorBlobLocatorProcessor.Builder shared = new ColorBlobLocatorProcessor.Builder()// use a predefined color match
@@ -134,7 +133,7 @@ abstract public class HuskyOpMode extends LinearOpMode {
 
     public void alignClawToSample() {
         List<ColorBlobLocatorProcessor.Blob> blobs = allianceColorBlob.getBlobs();
-        if (blobs.size() > 0) {
+        if (!blobs.isEmpty()) {
             ColorBlobLocatorProcessor.Blob blob = blobs.get(0);
             // Information on opencv bounding box: https://theailearner.com/tag/cv2-minarearect/
             // https://docs.opencv.org/4.x/dd/d49/tutorial_py_contour_features.html

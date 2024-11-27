@@ -1,22 +1,13 @@
 package org.firstinspires.ftc.teamcode.huskyteers.opmode;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode;
 import org.firstinspires.ftc.teamcode.huskyteers.StartInfo;
-import org.firstinspires.ftc.teamcode.huskyteers.hardware.ArmSlide;
-import org.firstinspires.ftc.teamcode.huskyteers.utils.GamepadUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.Claw;
 
 @TeleOp
-public class ClawTestingOpMode extends HuskyOpMode {
+public class ClawTesting extends HuskyOpMode {
     @Override
     public void runOpMode() {
         initVisionPortal(StartInfo.Color.BLUE);
@@ -24,11 +15,11 @@ public class ClawTestingOpMode extends HuskyOpMode {
         waitForStart();
         if (isStopRequested())
             return;
-        
-        
 
         while (opModeIsActive() && !isStopRequested()) {
-            if (gamepad1.a){ alignClawToSample();}
+            if (gamepad1.a) {
+                alignClawToSample();
+            }
             telemetry.update();
             sleep(20);
         }
