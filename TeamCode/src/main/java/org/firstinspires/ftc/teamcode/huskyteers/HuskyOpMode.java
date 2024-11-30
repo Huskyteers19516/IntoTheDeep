@@ -62,18 +62,20 @@ abstract public class HuskyOpMode extends LinearOpMode {
     public AprilTagProcessor aprilTag;
     public ColorBlobLocatorProcessor allianceColorBlob;
     public ColorBlobLocatorProcessor neutralColorBlob;
+    public StartInfo startInfo;
 
-    public HuskyOpMode() {
+    public HuskyOpMode(StartInfo startInfo) {
+        this.startInfo = startInfo;
     }
 
-    public void initColorBlob(StartInfo.Color color) {
+    public void initColorBlob() {
         ColorBlobLocatorProcessor.Builder shared = new ColorBlobLocatorProcessor.Builder()// use a predefined color match
                 .setContourMode(ColorBlobLocatorProcessor.ContourMode.EXTERNAL_ONLY)    // exclude blobs inside blobs
                 .setRoi(ImageRegion.asUnityCenterCoordinates(-1.0, 1.0, 1.0, -1.0))  // search central 1/4 of camera view
                 .setDrawContours(true)                        // Show contours on the Stream Preview
                 .setBlurSize(5);
         allianceColorBlob = shared
-                .setTargetColorRange(color.equals(StartInfo.Color.BLUE) ? ColorRange.BLUE : ColorRange.RED)
+                .setTargetColorRange(startInfo.color.equals(StartInfo.Color.BLUE) ? ColorRange.BLUE : ColorRange.RED)
                 .build();
         neutralColorBlob = shared
                 .setTargetColorRange(ColorRange.YELLOW)
@@ -84,12 +86,12 @@ abstract public class HuskyOpMode extends LinearOpMode {
         aprilTag = new AprilTagProcessor.Builder().setCameraPose(cameraPosition, cameraOrientation).build();
     }
 
-    public void initVisionPortal(StartInfo.Color color) {
+    public void initVisionPortal() {
         VisionPortal.Builder builder = new VisionPortal.Builder();
 
         builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
         initAprilTag();
-        initColorBlob(color);
+        initColorBlob();
 
         builder.addProcessor(aprilTag);
         builder.addProcessor(allianceColorBlob);

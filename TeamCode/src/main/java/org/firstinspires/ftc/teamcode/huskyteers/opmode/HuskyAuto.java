@@ -1,12 +1,15 @@
 package org.firstinspires.ftc.teamcode.huskyteers.opmode;
 
 import com.acmerobotics.roadrunner.Pose2d;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode;
+import org.firstinspires.ftc.teamcode.huskyteers.StartInfo;
 
-@Autonomous
 public class HuskyAuto extends HuskyOpMode {
+    public HuskyAuto(StartInfo startInfo) {
+        super(startInfo);
+    }
+
     @Override
     public void runOpMode() {
         instantiateMotors(new Pose2d(0, 0, 0));

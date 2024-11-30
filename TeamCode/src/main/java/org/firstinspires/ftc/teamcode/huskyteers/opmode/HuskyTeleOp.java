@@ -4,7 +4,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode;
 import org.firstinspires.ftc.teamcode.huskyteers.StartInfo;
@@ -15,15 +14,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@TeleOp
 public class HuskyTeleOp extends HuskyOpMode {
     final private FtcDashboard dash = FtcDashboard.getInstance();
     private List<Action> runningActions = new ArrayList<>();
 
+    public HuskyTeleOp(StartInfo startInfo) {
+        super(startInfo);
+    }
+
     @Override
     public void runOpMode() {
         instantiateMotors(new Pose2d(0, 0, 0));
-        initVisionPortal(StartInfo.Color.BLUE);
+        initVisionPortal();
 
         waitForStart();
         if (isStopRequested())
@@ -37,7 +39,9 @@ public class HuskyTeleOp extends HuskyOpMode {
         gamepad1Utils.addRisingEdge("right_bumper", (pressed) -> armSlide.setPosition(ArmSlide.EXTEND_POSITION));
         gamepad1Utils.addRisingEdge("left_bumper", (pressed) -> armSlide.setPosition(ArmSlide.RETRACT_POSITION));
 
-        gamepad1Utils.addRisingEdge("b", (pressed) -> alignClawToSample());
+        gamepad1Utils.addRisingEdge("b", (pressed) ->
+                getSampleRotation().ifPresent(rotation -> claw.rotateClaw(rotation))
+        );
 
         gamepad1Utils.addRisingEdge("x", (pressed) -> claw.openClaw());
         gamepad1Utils.addRisingEdge("y", (pressed) -> claw.closeClaw());
