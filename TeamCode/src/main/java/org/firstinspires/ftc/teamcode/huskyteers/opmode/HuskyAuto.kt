@@ -1,22 +1,14 @@
-package org.firstinspires.ftc.teamcode.huskyteers.opmode;
+package org.firstinspires.ftc.teamcode.huskyteers.opmode
 
-import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode;
-import org.firstinspires.ftc.teamcode.huskyteers.utils.StartInfo;
+import com.huskyteers.paths.StartInfo
+import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode
 
-public class HuskyAuto extends HuskyOpMode {
-    public HuskyAuto(StartInfo startInfo) {
-        super(startInfo);
-    }
+class HuskyAuto(startInfo: StartInfo) : HuskyOpMode(startInfo) {
+    override fun runOpMode() {
+        waitForStart()
+        if (isStopRequested) return
 
-    @Override
-    public void runOpMode() {
-        instantiateMotors(startInfo.position.pose2d);
-        waitForStart();
-        if (isStopRequested())
-            return;
-
-        while (opModeIsActive() && !isStopRequested()) {
-
+        while (opModeIsActive() && !isStopRequested) {
         }
     }
 }

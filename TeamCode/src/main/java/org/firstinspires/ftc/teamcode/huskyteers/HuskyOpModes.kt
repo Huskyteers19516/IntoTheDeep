@@ -1,49 +1,55 @@
-package org.firstinspires.ftc.teamcode.huskyteers;
+package org.firstinspires.ftc.teamcode.huskyteers
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
-import com.qualcomm.robotcore.eventloop.opmode.OpModeRegistrar;
+import com.huskyteers.paths.StartInfo
+import com.qualcomm.robotcore.eventloop.opmode.OpMode
+import com.qualcomm.robotcore.eventloop.opmode.OpModeManager
+import com.qualcomm.robotcore.eventloop.opmode.OpModeRegistrar
+import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta
+import org.firstinspires.ftc.teamcode.huskyteers.opmode.HuskyAuto
+import org.firstinspires.ftc.teamcode.huskyteers.opmode.HuskyTeleOp
 
-import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
-import org.firstinspires.ftc.teamcode.huskyteers.opmode.HuskyAuto;
-import org.firstinspires.ftc.teamcode.huskyteers.opmode.HuskyTeleOp;
-import org.firstinspires.ftc.teamcode.huskyteers.utils.StartInfo;
+const val GROUP: String = "huskyteers"
+const val DISABLED: Boolean = false
 
-@SuppressWarnings("unused")
-public final class HuskyOpModes {
-    public static final String GROUP = "huskyteers";
-    public static final boolean DISABLED = false;
+private fun metaForTeleOp(
+    cls: Class<out OpMode?>,
+    startInfo: StartInfo,
+    autoCls: Class<out OpMode?>
+): OpModeMeta {
+    return OpModeMeta.Builder()
+        .setName(cls.simpleName + " - " + startInfo.toString())
+        .setGroup(GROUP)
+        .setFlavor(OpModeMeta.Flavor.TELEOP)
+        .setTransitionTarget(autoCls.simpleName + " - " + startInfo.toString())
+        .build()
+}
 
-    private HuskyOpModes() {
-    }
+private fun metaForAuto(cls: Class<out OpMode?>, startInfo: StartInfo): OpModeMeta {
+    return OpModeMeta.Builder()
+        .setName(cls.simpleName + " - " + startInfo.toString())
+        .setGroup(GROUP)
+        .setFlavor(OpModeMeta.Flavor.AUTONOMOUS)
+        .build()
+}
 
-    private static OpModeMeta metaForTeleOp(Class<? extends OpMode> cls, StartInfo startInfo, Class<? extends OpMode> autoCls) {
-        return new OpModeMeta.Builder()
-                .setName(cls.getSimpleName() + " - " + startInfo.toString())
-                .setGroup(GROUP)
-                .setFlavor(OpModeMeta.Flavor.TELEOP)
-                .setTransitionTarget(autoCls.getSimpleName() + " - " + startInfo.toString())
-                .build();
-    }
+@OpModeRegistrar
+fun register(manager: OpModeManager) {
+    if (DISABLED) return
 
-    private static OpModeMeta metaForAuto(Class<? extends OpMode> cls, StartInfo startInfo) {
-        return new OpModeMeta.Builder()
-                .setName(cls.getSimpleName() + " - " + startInfo.toString())
-                .setGroup(GROUP)
-                .setFlavor(OpModeMeta.Flavor.AUTONOMOUS)
-                .build();
-    }
-
-    @OpModeRegistrar
-    public static void register(OpModeManager manager) {
-        if (DISABLED) return;
-
-        for (StartInfo.Position position : StartInfo.Position.values()) {
-            for (StartInfo.Color color : StartInfo.Color.values()) {
-                StartInfo startConfiguration = new StartInfo(color, position);
-                manager.register(metaForTeleOp(HuskyTeleOp.class, startConfiguration, HuskyAuto.class), new HuskyTeleOp(startConfiguration));
-                manager.register(metaForAuto(HuskyAuto.class, startConfiguration), new HuskyAuto(startConfiguration));
-            }
+    for (position in StartInfo.Position.entries.toTypedArray()) {
+        for (color in StartInfo.Color.entries.toTypedArray()) {
+            val startConfiguration = StartInfo(color, position)
+            manager.register(
+                metaForTeleOp(
+                    HuskyTeleOp::class.java, startConfiguration,
+                    HuskyAuto::class.java
+                ), HuskyTeleOp(startConfiguration)
+            )
+            manager.register(
+                metaForAuto(HuskyAuto::class.java, startConfiguration),
+                HuskyAuto(startConfiguration)
+            )
         }
     }
 }
+

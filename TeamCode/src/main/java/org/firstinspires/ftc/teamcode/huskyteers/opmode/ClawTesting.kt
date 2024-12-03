@@ -1,41 +1,31 @@
-package org.firstinspires.ftc.teamcode.huskyteers.opmode;
+package org.firstinspires.ftc.teamcode.huskyteers.opmode
 
-import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode;
-import org.firstinspires.ftc.teamcode.huskyteers.hardware.Claw;
-import org.firstinspires.ftc.teamcode.huskyteers.utils.StartInfo;
+import com.huskyteers.paths.StartInfo
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode
 
-import java.util.OptionalDouble;
+@TeleOp
+class ClawTesting : HuskyOpMode(StartInfo(StartInfo.Color.BLUE, StartInfo.Position.FarFromBasket)) {
+    override fun runOpMode() {
+        visionPortal.resumeLiveView()
+        visionPortal.resumeStreaming()
+        waitForStart()
+        if (isStopRequested) return
 
-public class ClawTesting extends HuskyOpMode {
-    public ClawTesting(StartInfo startInfo) {
-        super(startInfo);
-    }
-
-    @Override
-    public void runOpMode() {
-        initVisionPortal();
-        claw = new Claw(hardwareMap);
-        visionPortal.resumeLiveView();
-        visionPortal.resumeStreaming();
-        waitForStart();
-        if (isStopRequested())
-            return;
-
-        while (opModeIsActive() && !isStopRequested()) {
-            OptionalDouble sampleRotation = getSampleRotation();
-            if (sampleRotation.isPresent()) {
-                telemetry.addData("Sample rotation", sampleRotation);
+        while (opModeIsActive() && !isStopRequested) {
+            val sampleRotation = sampleRotation
+            if (sampleRotation.isPresent) {
+                telemetry.addData("Sample rotation", sampleRotation)
                 if (gamepad1.a) {
-                    claw.rotateClaw(sampleRotation.getAsDouble());
+                    claw.rotateClaw(sampleRotation.asDouble)
                 }
             } else {
-                telemetry.addData("Sample rotation", "Sample not found");
+                telemetry.addData("Sample rotation", "Sample not found")
             }
 
-            telemetry.update();
-            sleep(20);
+            telemetry.update()
+            sleep(20)
         }
-        visionPortal.close();
-
+        visionPortal.close()
     }
 }

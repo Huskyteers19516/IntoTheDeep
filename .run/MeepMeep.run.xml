@@ -2,7 +2,7 @@
   <configuration default="false" name="MeepMeep" type="Application" factoryName="Application">
     <option name="ALTERNATIVE_JRE_PATH" value="jbr-21" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-    <option name="MAIN_CLASS_NAME" value="com.huskyteers.paths.Main" />
+    <option name="MAIN_CLASS_NAME" value="com.huskyteers.paths.MainKt" />
     <module name="IntoTheDeep.Paths.main" />
     <method v="2">
       <option name="Make" enabled="true" />

@@ -1,91 +1,82 @@
-package org.firstinspires.ftc.teamcode.huskyteers.hardware;
+package org.firstinspires.ftc.teamcode.huskyteers.hardware
 
-import androidx.annotation.NonNull;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket
+import com.acmerobotics.roadrunner.Action
+import com.qualcomm.robotcore.hardware.HardwareMap
+import com.qualcomm.robotcore.hardware.Servo
+import kotlin.math.abs
 
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-
-public class Claw {
-    public static final double eps = 1e-5;
-    private static final double OPEN_POSITION = 1.0;
-    private static final double CLOSE_POSITION = 0;
-    private final Servo clawOpenerServo;
-    private final Servo clawRotatorServo;
-
-    public Claw(HardwareMap hardwareMap) {
-        clawOpenerServo = hardwareMap.get(Servo.class, "clawOpener");
-        clawRotatorServo = hardwareMap.get(Servo.class, "clawRotator");
-    }
+class Claw(hardwareMap: HardwareMap) {
+    private val clawOpenerServo: Servo = hardwareMap.get(Servo::class.java, "clawOpener")
+    private val clawRotatorServo: Servo = hardwareMap.get(Servo::class.java, "clawRotator")
 
     /**
      * @param angle Angle of sample in degrees counterclockwise, with 0 being to the right
-     *              (like a unit circle)
+     * (like a unit circle)
      */
-    public void rotateClaw(double angle) {
-        setClawRotatorPosition(angle / 180);
+    fun rotateClaw(angle: Double) {
+        clawRotatorPosition = angle / 180
     }
 
-    public boolean checkPosition(double s, double dest) {
-        return Math.abs(s - dest) <= eps;
+    fun checkPosition(s: Double, dest: Double): Boolean {
+        return abs(s - dest) <= eps
     }
 
-    public Action openClaw() {
-        return new Action() {
-            private boolean initialized = false;
+    fun openClaw(): Action {
+        return object : Action {
+            private var initialized = false
 
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            override fun run(telemetryPacket: TelemetryPacket): Boolean {
                 if (!initialized) {
-                    setClawOpenerPosition(OPEN_POSITION);
-                    initialized = true;
+                    this@Claw.clawOpenerPosition = OPEN_POSITION
+                    initialized = true
                 }
 
-                return checkPosition(getClawOpenerPosition(), OPEN_POSITION);
+                return checkPosition(this@Claw.clawOpenerPosition, OPEN_POSITION)
             }
-        };
+        }
     }
 
-    public Action closeClaw() {
-        return new Action() {
-            private boolean initialized = false;
-            private double previousPosition;
-            private int timing = 10;
-            private int interval = 0;
+    fun closeClaw(): Action {
+        return object : Action {
+            private var initialized = false
+            private var previousPosition = 0.0
+            private val timing = 10
+            private var interval = 0
 
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            override fun run(telemetryPacket: TelemetryPacket): Boolean {
                 if (!initialized) {
-                    setClawOpenerPosition(CLOSE_POSITION);
-                    initialized = true;
+                    this@Claw.clawOpenerPosition = CLOSE_POSITION
+                    initialized = true
                 }
-                if (clawOpenerServo.getPosition() == previousPosition) {
-                    setClawOpenerPosition(previousPosition);
-                    return false;
+                if (clawOpenerServo.position == previousPosition) {
+                    this@Claw.clawOpenerPosition = previousPosition
+                    return false
                 }
                 if (interval % timing == 0) {
-                    previousPosition = getClawOpenerPosition();
+                    previousPosition = this@Claw.clawOpenerPosition
                 }
-                interval++;
-                return checkPosition(getClawOpenerPosition(), CLOSE_POSITION);
+                interval++
+                return checkPosition(this@Claw.clawOpenerPosition, CLOSE_POSITION)
             }
-        };
+        }
     }
 
-    public double getClawOpenerPosition() {
-        return clawOpenerServo.getPosition();
-    }
+    var clawOpenerPosition: Double
+        get() = clawOpenerServo.position
+        set(pos) {
+            clawOpenerServo.position = pos
+        }
 
-    public void setClawOpenerPosition(double pos) {
-        clawOpenerServo.setPosition(pos);
-    }
+    var clawRotatorPosition: Double
+        get() = clawRotatorServo.position
+        set(pos) {
+            clawRotatorServo.position = pos
+        }
 
-    public double getClawRotatorPosition() {
-        return clawRotatorServo.getPosition();
-    }
-
-    public void setClawRotatorPosition(double pos) {
-        clawRotatorServo.setPosition(pos);
+    companion object {
+        const val eps: Double = 1e-5
+        private const val OPEN_POSITION = 1.0
+        private const val CLOSE_POSITION = 0.0
     }
 }

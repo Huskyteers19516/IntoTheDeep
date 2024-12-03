@@ -1,54 +1,52 @@
-package org.firstinspires.ftc.teamcode.huskyteers.hardware;
+package org.firstinspires.ftc.teamcode.huskyteers.hardware
 
-import androidx.annotation.NonNull;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket
+import com.acmerobotics.roadrunner.Action
+import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.HardwareMap
 
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
+class ArmSlide(hardwareMap: HardwareMap) {
+    private val motor: DcMotor = hardwareMap.get(DcMotor::class.java, "armSlide")
 
-public class ArmSlide {
-    public static final int EXTEND_POSITION = 100;
-    public static final int RETRACT_POSITION = 0;
-    final private DcMotor motor;
-
-    public ArmSlide(HardwareMap hardwareMap) {
-        motor = hardwareMap.get(DcMotor.class, "armSlide");
-        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    init {
+        motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        motor.mode = DcMotor.RunMode.RUN_TO_POSITION
     }
 
-    public void setPosition(int position) {
-        motor.setTargetPosition(position);
+    fun setPosition(position: Int) {
+        motor.targetPosition = position
     }
 
-    public Action extendArm() {
-        return new Action() {
-            private boolean initialized = false;
+    fun extendArm(): Action {
+        return object : Action {
+            private var initialized = false
 
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            override fun run(p: TelemetryPacket): Boolean {
                 if (!initialized) {
-                    setPosition(EXTEND_POSITION);
-                    initialized = true;
+                    setPosition(EXTEND_POSITION)
+                    initialized = true
                 }
-                return motor.isBusy();
+                return motor.isBusy
             }
-        };
+        }
     }
 
-    public Action retractArm() {
-        return new Action() {
-            private boolean initialized = false;
+    fun retractArm(): Action {
+        return object : Action {
+            private var initialized = false
 
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            override fun run(p: TelemetryPacket): Boolean {
                 if (!initialized) {
-                    setPosition(RETRACT_POSITION);
-                    initialized = true;
+                    setPosition(RETRACT_POSITION)
+                    initialized = true
                 }
-                return motor.isBusy();
+                return motor.isBusy
             }
-        };
+        }
+    }
+
+    companion object {
+        const val EXTEND_POSITION: Int = 100
+        const val RETRACT_POSITION: Int = 0
     }
 }

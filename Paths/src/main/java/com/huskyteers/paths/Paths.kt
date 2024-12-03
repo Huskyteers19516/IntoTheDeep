@@ -1,10 +1,8 @@
-package com.huskyteers.paths;
+package com.huskyteers.paths
 
-import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
-import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.TrajectoryActionBuilder
+import com.acmerobotics.roadrunner.Vector2d
 
-public class Paths {
-    public static TrajectoryActionBuilder examplePath(TrajectoryActionBuilder actionBuilder) {
-        return actionBuilder.strafeTo(new Vector2d(10, 10));
-    }
+fun examplePath(actionBuilder: TrajectoryActionBuilder): TrajectoryActionBuilder {
+    return actionBuilder.strafeTo(Vector2d(10.0, 10.0))
 }

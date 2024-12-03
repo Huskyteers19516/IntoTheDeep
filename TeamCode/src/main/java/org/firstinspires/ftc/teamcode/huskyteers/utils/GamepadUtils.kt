@@ -1,29 +1,26 @@
-package org.firstinspires.ftc.teamcode.huskyteers.utils;
+package org.firstinspires.ftc.teamcode.huskyteers.utils
 
-import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.Gamepad
+import java.util.function.Consumer
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.function.Consumer;
+class GamepadUtils {
+    private val currentGamepad = Gamepad()
+    private val previousGamepad = Gamepad()
+    private val risingEdgeDetectors: MutableList<Detector> = ArrayList()
+    private val fallingEdgeDetectors: MutableList<Detector> = ArrayList()
 
-public class GamepadUtils {
-    private final Gamepad currentGamepad = new Gamepad();
-    private final Gamepad previousGamepad = new Gamepad();
-    private final List<Detector> risingEdgeDetectors;
-    private final List<Detector> fallingEdgeDetectors;
-
-    public GamepadUtils() {
-        this.risingEdgeDetectors = new ArrayList<>();
-        this.fallingEdgeDetectors = new ArrayList<>();
-    }
-
-    private boolean getButton(String button, Gamepad gamepad) {
+    private fun getButton(button: String, gamepad: Gamepad): Boolean {
         try {
-            return (boolean) gamepad.getClass().getField(button).get(gamepad);
-        } catch (NoSuchFieldException | IllegalAccessException | NullPointerException e) {
-            System.out.println("Invalid button name");
-            throw new NoSuchElementException("invalid button");
+            return gamepad.javaClass.getField(button)[gamepad] as Boolean
+        } catch (e: NoSuchFieldException) {
+            println("Invalid button name")
+            throw NoSuchElementException("invalid button")
+        } catch (e: IllegalAccessException) {
+            println("Invalid button name")
+            throw NoSuchElementException("invalid button")
+        } catch (e: NullPointerException) {
+            println("Invalid button name")
+            throw NoSuchElementException("invalid button")
         }
     }
 
@@ -33,9 +30,9 @@ public class GamepadUtils {
      * @param button   The button to watch
      * @param callback The callback to the function when pressed or released
      */
-    public void addHoldDetector(String button, Consumer<Boolean> callback) {
-        risingEdgeDetectors.add(new Detector(button, callback));
-        fallingEdgeDetectors.add(new Detector(button, callback));
+    fun addHoldDetector(button: String, callback: Consumer<Boolean?>) {
+        risingEdgeDetectors.add(Detector(button, callback))
+        fallingEdgeDetectors.add(Detector(button, callback))
     }
 
     /**
@@ -44,8 +41,8 @@ public class GamepadUtils {
      * @param button   The button to watch
      * @param callback The callback to the function when pressed
      */
-    public void addRisingEdge(String button, Consumer<Boolean> callback) {
-        risingEdgeDetectors.add(new Detector(button, callback));
+    fun addRisingEdge(button: String, callback: Consumer<Boolean?>) {
+        risingEdgeDetectors.add(Detector(button, callback))
     }
 
     /**
@@ -54,32 +51,32 @@ public class GamepadUtils {
      * @param button   The button to watch
      * @param callback The callback to the function when released
      */
-    public void addFallingEdge(String button, Consumer<Boolean> callback) {
-        fallingEdgeDetectors.add(new Detector(button, callback));
+    fun addFallingEdge(button: String, callback: Consumer<Boolean?>) {
+        fallingEdgeDetectors.add(Detector(button, callback))
     }
 
-    public void processUpdates(Gamepad gamepad) {
-        previousGamepad.copy(currentGamepad);
-        currentGamepad.copy(gamepad);
-        for (Detector detector : risingEdgeDetectors) {
-            if (getButton(detector.button, currentGamepad) && !getButton(detector.button, previousGamepad)) {
-                detector.callback.accept(true);
+    fun processUpdates(gamepad: Gamepad?) {
+        previousGamepad.copy(currentGamepad)
+        currentGamepad.copy(gamepad)
+        for (detector in risingEdgeDetectors) {
+            if (getButton(detector.button, currentGamepad) && !getButton(
+                    detector.button,
+                    previousGamepad
+                )
+            ) {
+                detector.callback.accept(true)
             }
         }
-        for (Detector detector : fallingEdgeDetectors) {
-            if (getButton(detector.button, currentGamepad) && !getButton(detector.button, previousGamepad)) {
-                detector.callback.accept(false);
+        for (detector in fallingEdgeDetectors) {
+            if (getButton(detector.button, currentGamepad) && !getButton(
+                    detector.button,
+                    previousGamepad
+                )
+            ) {
+                detector.callback.accept(false)
             }
         }
     }
 
-    private static class Detector {
-        Consumer<Boolean> callback;
-        String button;
-
-        Detector(String button, Consumer<Boolean> callback) {
-            this.callback = callback;
-            this.button = button;
-        }
-    }
+    private class Detector(var button: String, var callback: Consumer<Boolean?>)
 }

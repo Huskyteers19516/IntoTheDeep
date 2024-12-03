@@ -1,92 +1,110 @@
-package org.firstinspires.ftc.teamcode.huskyteers.opmode;
+package org.firstinspires.ftc.teamcode.huskyteers.opmode
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket
+import com.acmerobotics.roadrunner.Action
+import com.acmerobotics.roadrunner.Pose2d
+import com.huskyteers.paths.StartInfo
+import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.ArmSlide
+import org.firstinspires.ftc.teamcode.huskyteers.utils.GamepadUtils
+import java.util.concurrent.atomic.AtomicBoolean
 
-import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode;
-import org.firstinspires.ftc.teamcode.huskyteers.hardware.ArmSlide;
-import org.firstinspires.ftc.teamcode.huskyteers.utils.GamepadUtils;
-import org.firstinspires.ftc.teamcode.huskyteers.utils.StartInfo;
+class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
+    private val dash: FtcDashboard = FtcDashboard.getInstance()
+    private var runningActions: List<Action> = ArrayList()
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+    override fun runOpMode() {
+        waitForStart()
+        if (isStopRequested) return
+        val gamepad1Utils = GamepadUtils()
+        val gamepad2Utils = GamepadUtils()
+        gamepad1Utils.addRisingEdge(
+            "start"
+        ) {
+            drive.pose = Pose2d(
+                drive.pose.position, 0.0
+            )
+        }
 
-public class HuskyTeleOp extends HuskyOpMode {
-    final private FtcDashboard dash = FtcDashboard.getInstance();
-    private List<Action> runningActions = new ArrayList<>();
+        val usingFieldCentric = AtomicBoolean(false)
 
-    public HuskyTeleOp(StartInfo startInfo) {
-        super(startInfo);
-    }
+        gamepad1Utils.addRisingEdge(
+            "right_bumper"
+        ) { armSlide.setPosition(ArmSlide.EXTEND_POSITION) }
+        gamepad1Utils.addRisingEdge(
+            "left_bumper"
+        ) { armSlide.setPosition(ArmSlide.RETRACT_POSITION) }
 
-    @Override
-    public void runOpMode() {
-        instantiateMotors(new Pose2d(0, 0, 0));
-        initVisionPortal();
+        gamepad1Utils.addRisingEdge(
+            "b"
+        ) {
+            sampleRotation.ifPresent { rotation: Double ->
+                claw.rotateClaw(
+                    rotation
+                )
+            }
+        }
 
-        waitForStart();
-        if (isStopRequested())
-            return;
-        GamepadUtils gamepad1Utils = new GamepadUtils();
-        GamepadUtils gamepad2Utils = new GamepadUtils();
-        gamepad1Utils.addRisingEdge("start", (pressed) -> drive.pose = new Pose2d(this.drive.pose.position, 0));
+        gamepad1Utils.addRisingEdge(
+            "x"
+        ) { claw.openClaw() }
+        gamepad1Utils.addRisingEdge(
+            "y"
+        ) { claw.closeClaw() }
 
-        AtomicBoolean usingFieldCentric = new AtomicBoolean(false);
+        gamepad1Utils.addRisingEdge("a") {
+            usingFieldCentric.set(!usingFieldCentric.get())
+            gamepad1.rumble(200)
+        }
+        gamepad1Utils.addRisingEdge(
+            "dpad_up"
+        ) {
+            visionPortal.resumeStreaming()
+        }
 
-        gamepad1Utils.addRisingEdge("right_bumper", (pressed) -> armSlide.setPosition(ArmSlide.EXTEND_POSITION));
-        gamepad1Utils.addRisingEdge("left_bumper", (pressed) -> armSlide.setPosition(ArmSlide.RETRACT_POSITION));
+        while (opModeIsActive() && !isStopRequested) {
+            val packet = TelemetryPacket()
 
-        gamepad1Utils.addRisingEdge("b", (pressed) ->
-                getSampleRotation().ifPresent(rotation -> claw.rotateClaw(rotation))
-        );
+            gamepad1Utils.processUpdates(gamepad1)
+            gamepad2Utils.processUpdates(gamepad2)
 
-        gamepad1Utils.addRisingEdge("x", (pressed) -> claw.openClaw());
-        gamepad1Utils.addRisingEdge("y", (pressed) -> claw.closeClaw());
-
-        gamepad1Utils.addRisingEdge("a", (pressed) -> {
-            usingFieldCentric.set(!usingFieldCentric.get());
-            gamepad1.rumble(200);
-        });
-        gamepad1Utils.addRisingEdge("dpad_up", (pressed) -> {
-            visionPortal.resumeStreaming();
-        });
-
-        while (opModeIsActive() && !isStopRequested()) {
-            TelemetryPacket packet = new TelemetryPacket();
-
-            gamepad1Utils.processUpdates(gamepad1);
-            gamepad2Utils.processUpdates(gamepad2);
-
-            double speed = (0.35 + 0.5 * gamepad1.left_trigger);
+            val speed = (0.35 + 0.5 * gamepad1.left_trigger)
             if (gamepad1.a) {
-                usingFieldCentric.set(!usingFieldCentric.get());
+                usingFieldCentric.set(!usingFieldCentric.get())
             }
             if (usingFieldCentric.get()) {
-                telemetry.addData("Drive Mode", "Field Centric");
-                fieldCentricDriveRobot(gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, speed);
+                telemetry.addData("Drive Mode", "Field Centric")
+                fieldCentricDriveRobot(
+                    gamepad1.left_stick_y.toDouble(),
+                    -gamepad1.left_stick_x.toDouble(),
+                    -gamepad1.right_stick_x.toDouble(),
+                    speed
+                )
             } else {
-                telemetry.addData("Drive Mode", "Tank");
-                driveRobot(gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, speed);
+                telemetry.addData("Drive Mode", "Tank")
+                driveRobot(
+                    gamepad1.left_stick_y.toDouble(),
+                    -gamepad1.left_stick_x.toDouble(),
+                    -gamepad1.right_stick_x.toDouble(),
+                    speed
+                )
             }
 
             // update running actions
-            List<Action> newActions = new ArrayList<>();
-            for (Action action : runningActions) {
-                action.preview(packet.fieldOverlay());
+            val newActions: MutableList<Action> = ArrayList()
+            for (action in runningActions) {
+                action.preview(packet.fieldOverlay())
                 if (action.run(packet)) {
-                    newActions.add(action);
+                    newActions.add(action)
                 }
             }
-            runningActions = newActions;
+            runningActions = newActions
 
-            dash.sendTelemetryPacket(packet);
-            telemetry.update();
-            sleep(20);
+            dash.sendTelemetryPacket(packet)
+            telemetry.update()
+            sleep(20)
         }
-        visionPortal.close();
-
+        visionPortal.close()
     }
 }
