@@ -13,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.huskyteers.hardware.ArmSlide;
 import org.firstinspires.ftc.teamcode.huskyteers.hardware.Claw;
+import org.firstinspires.ftc.teamcode.huskyteers.utils.StartInfo;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;

@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.huskyteers.opmode;
 
 import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode;
-import org.firstinspires.ftc.teamcode.huskyteers.StartInfo;
 import org.firstinspires.ftc.teamcode.huskyteers.hardware.Claw;
+import org.firstinspires.ftc.teamcode.huskyteers.utils.StartInfo;
 
 import java.util.OptionalDouble;
 

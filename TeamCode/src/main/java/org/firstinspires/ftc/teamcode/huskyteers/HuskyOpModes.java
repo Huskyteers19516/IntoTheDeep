@@ -7,15 +7,12 @@ import com.qualcomm.robotcore.eventloop.opmode.OpModeRegistrar;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.teamcode.huskyteers.opmode.HuskyAuto;
 import org.firstinspires.ftc.teamcode.huskyteers.opmode.HuskyTeleOp;
+import org.firstinspires.ftc.teamcode.huskyteers.utils.StartInfo;
 
 @SuppressWarnings("unused")
 public final class HuskyOpModes {
     public static final String GROUP = "huskyteers";
     public static final boolean DISABLED = false;
-    private static final StartInfo[] startConfigurations = {
-            new StartInfo(StartInfo.Color.BLUE),
-            new StartInfo(StartInfo.Color.RED)
-    };
 
     private HuskyOpModes() {
     }
@@ -41,10 +38,12 @@ public final class HuskyOpModes {
     public static void register(OpModeManager manager) {
         if (DISABLED) return;
 
-        for (StartInfo startConfiguration :
-                startConfigurations) {
-            manager.register(metaForTeleOp(HuskyTeleOp.class, startConfiguration, HuskyAuto.class), new HuskyTeleOp(startConfiguration));
-            manager.register(metaForAuto(HuskyAuto.class, startConfiguration), new HuskyAuto(startConfiguration));
+        for (StartInfo.Position position : StartInfo.Position.values()) {
+            for (StartInfo.Color color : StartInfo.Color.values()) {
+                StartInfo startConfiguration = new StartInfo(color, position);
+                manager.register(metaForTeleOp(HuskyTeleOp.class, startConfiguration, HuskyAuto.class), new HuskyTeleOp(startConfiguration));
+                manager.register(metaForAuto(HuskyAuto.class, startConfiguration), new HuskyAuto(startConfiguration));
+            }
         }
     }
 }

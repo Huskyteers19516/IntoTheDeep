@@ -6,9 +6,9 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 
 import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode;
-import org.firstinspires.ftc.teamcode.huskyteers.StartInfo;
 import org.firstinspires.ftc.teamcode.huskyteers.hardware.ArmSlide;
 import org.firstinspires.ftc.teamcode.huskyteers.utils.GamepadUtils;
+import org.firstinspires.ftc.teamcode.huskyteers.utils.StartInfo;
 
 import java.util.ArrayList;
 import java.util.List;
