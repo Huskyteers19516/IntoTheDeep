@@ -1,7 +1,5 @@
 package com.huskyteers.paths
 
-import com.acmerobotics.roadrunner.Pose2d
-import com.acmerobotics.roadrunner.Vector2d
 import com.noahbres.meepmeep.MeepMeep
 import com.noahbres.meepmeep.MeepMeep.Background
 import com.noahbres.meepmeep.core.colorscheme.ColorScheme
@@ -18,20 +16,20 @@ fun createRobot(colorScheme: ColorScheme): RoadRunnerBotEntity {
             60.0,
             Math.toRadians(180.0),
             Math.toRadians(30.0),
-            StartInfo.Companion.WIDTH
+            WIDTH
         )
-        .setDimensions(StartInfo.Companion.WIDTH, StartInfo.Companion.HEIGHT)
+        .setDimensions(WIDTH, HEIGHT)
         .setColorScheme(colorScheme)
         .build()
 }
 
-fun main(args: Array<String>) {
+fun main() {
     val backstageBot = createRobot(ColorSchemeBlueDark())
     backstageBot.runAction(
-        backstageBot.drive
-            .actionBuilder(Pose2d(0.0, 0.0, Math.toRadians(90.0)))
-            .splineToLinearHeading(Pose2d(48.0, 48.0, 0.0), Math.PI / 2)
-            .splineTo(Vector2d(30.0, 60.0), Math.toRadians(180.0))
+        closeToBasketToRightmostBrick(
+            backstageBot.drive
+                .actionBuilder(StartInfo.Position.CloseToBasket.pose2d)
+        )
             .build()
     )
 

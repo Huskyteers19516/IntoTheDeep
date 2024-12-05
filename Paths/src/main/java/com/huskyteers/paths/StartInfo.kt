@@ -14,13 +14,23 @@ class StartInfo(var color: Color, var position: Position) {
     }
 
     enum class Position(val pose2d: Pose2d) {
-        CloseToBasket(Pose2d(TILE_LENGTH * 1.5, TILE_LENGTH * -3 + HEIGHT, Math.toRadians(90.0))),
-        FarFromBasket(Pose2d(TILE_LENGTH * -1.5, TILE_LENGTH * -3 + HEIGHT, Math.toRadians(90.0)))
+        CloseToBasket(
+            Pose2d(
+                TILE_LENGTH * -1.5,
+                TILE_LENGTH * -3 + HEIGHT / 2,
+                Math.toRadians(90.0)
+            )
+        ),
+        FarFromBasket(
+            Pose2d(
+                TILE_LENGTH * 1.5,
+                TILE_LENGTH * -3 + HEIGHT / 2,
+                Math.toRadians(90.0)
+            )
+        )
     }
 
     companion object {
-        const val TILE_LENGTH: Double = 24.0
-        const val HEIGHT: Double = 17.0
-        const val WIDTH: Double = 17.0
+
     }
 }
