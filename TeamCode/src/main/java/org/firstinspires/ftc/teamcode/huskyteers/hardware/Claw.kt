@@ -26,7 +26,7 @@ class Claw(hardwareMap: HardwareMap) {
         return object : Action {
             private var initialized = false
 
-            override fun run(telemetryPacket: TelemetryPacket): Boolean {
+            override fun run(p: TelemetryPacket): Boolean {
                 if (!initialized) {
                     this@Claw.clawOpenerPosition = OPEN_POSITION
                     initialized = true
@@ -44,7 +44,7 @@ class Claw(hardwareMap: HardwareMap) {
             private val timing = 10
             private var interval = 0
 
-            override fun run(telemetryPacket: TelemetryPacket): Boolean {
+            override fun run(p: TelemetryPacket): Boolean {
                 if (!initialized) {
                     this@Claw.clawOpenerPosition = CLOSE_POSITION
                     initialized = true

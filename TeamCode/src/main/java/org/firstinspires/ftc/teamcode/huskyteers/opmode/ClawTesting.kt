@@ -15,6 +15,7 @@ class ClawTesting : HuskyOpMode(StartInfo(StartInfo.Color.BLUE, StartInfo.Positi
         while (opModeIsActive() && !isStopRequested) {
             val sampleRotation = sampleRotation
             if (sampleRotation.isPresent) {
+                telemetry.addData("Dumb sample rotation", dumbSampleRotation)
                 telemetry.addData("Sample rotation", sampleRotation)
                 if (gamepad1.a) {
                     claw.rotateClaw(sampleRotation.asDouble)

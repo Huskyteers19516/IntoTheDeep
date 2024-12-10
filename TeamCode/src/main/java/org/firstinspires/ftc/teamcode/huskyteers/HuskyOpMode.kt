@@ -13,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles
 import org.firstinspires.ftc.teamcode.MecanumDrive
 import org.firstinspires.ftc.teamcode.huskyteers.hardware.ArmSlide
 import org.firstinspires.ftc.teamcode.huskyteers.hardware.Claw
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.Extender
 import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
@@ -61,6 +62,7 @@ abstract class HuskyOpMode(var startInfo: StartInfo) : LinearOpMode() {
     val drive: MecanumDrive by lazy { MecanumDrive(hardwareMap, startInfo.position.pose2d) }
     val armSlide: ArmSlide by lazy { ArmSlide(hardwareMap) }
     val claw: Claw by lazy { Claw(hardwareMap) }
+    val extender: Extender by lazy { Extender(hardwareMap) }
     val visionPortal: VisionPortal by lazy {
         VisionPortal.Builder().apply {
             setCamera(hardwareMap.get(WebcamName::class.java, "Webcam 1"))
@@ -128,6 +130,20 @@ abstract class HuskyOpMode(var startInfo: StartInfo) : LinearOpMode() {
         }
     }
 
+    val dumbSampleRotation: OptionalDouble
+        get() {
+            val blobs =
+                allianceColorBlob.blobs
+            if (blobs.isNotEmpty()) {
+                val blob = blobs[0]
+                // Information on opencv bounding box: https://theailearner.com/tag/cv2-minarearect/
+                // https://docs.opencv.org/4.x/dd/d49/tutorial_py_contour_features.html
+                val box = blob.boxFit
+                return OptionalDouble.of(box.angle)
+            }
+            return OptionalDouble.empty()
+        }
+
     val sampleRotation: OptionalDouble
         get() {
             val blobs =
@@ -139,10 +155,10 @@ abstract class HuskyOpMode(var startInfo: StartInfo) : LinearOpMode() {
                 val box = blob.boxFit
                 return if (box.size.height < box.size.width) {
                     // The bounding box is horizontal
-                    OptionalDouble.of(-1 * box.angle + 90)
+                    OptionalDouble.of(box.angle + 90)
                 } else {
                     // The bounding box is vertical
-                    OptionalDouble.of(-1 * box.angle)
+                    OptionalDouble.of(box.angle)
                 }
             }
             return OptionalDouble.empty()
