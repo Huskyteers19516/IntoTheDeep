@@ -11,14 +11,14 @@ class ExtenderTesting :
         waitForStart()
         if (isStopRequested) return
 
-        extender
+        horizontalExtender
         while (opModeIsActive() && !isStopRequested) {
             if (gamepad1.a) {
-                extender.extend()
+                horizontalExtender.extend()
             } else if (gamepad1.b) {
-                extender.retract()
+                horizontalExtender.retract()
             }
-            telemetry.addData("Extender position", extender.position)
+            telemetry.addData("Extender position", horizontalExtender.position)
             telemetry.update()
             sleep(20)
         }

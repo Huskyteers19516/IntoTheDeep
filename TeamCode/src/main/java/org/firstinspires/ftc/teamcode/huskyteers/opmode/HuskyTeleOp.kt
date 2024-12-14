@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.Pose2d
 import com.huskyteers.paths.StartInfo
 import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode
 import org.firstinspires.ftc.teamcode.huskyteers.hardware.ArmSlide
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.VerticalExtender
 import org.firstinspires.ftc.teamcode.huskyteers.utils.GamepadUtils
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -46,10 +47,10 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
             }
         }
 
-        gamepad1Utils.addRisingEdge(
+        gamepad2Utils.addRisingEdge(
             "x"
         ) { claw.openClaw() }
-        gamepad1Utils.addRisingEdge(
+        gamepad2Utils.addRisingEdge(
             "y"
         ) { claw.closeClaw() }
 
@@ -62,14 +63,43 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
         ) {
             visionPortal.resumeStreaming()
         }
+        gamepad2Utils.addRisingEdge(
+            "dpad_up"
+        ) {
+            horizontalExtender.extend();
+        }
+        gamepad2Utils.addRisingEdge(
+            "dpad_down"
+        ) {
+            horizontalExtender.retract()
+        }
+        gamepad2Utils.addRisingEdge("b") {
+            if (verticalExtender.state == VerticalExtender.State.EXTENDED) {
+                verticalExtender.retract()
+            } else {
+                verticalExtender.extend()
+            }
+        }
+        gamepad2Utils.addRisingEdge(
+            "left_bumper"
+        ) {
+            basket.drop()
+        }
+        gamepad2Utils.addRisingEdge(
+            "right_bumper"
+        ) {
+            basket.raise()
+        }
 
         while (opModeIsActive() && !isStopRequested) {
             val packet = TelemetryPacket()
 
             gamepad1Utils.processUpdates(gamepad1)
             gamepad2Utils.processUpdates(gamepad2)
+            val clawSpeed = gamepad2.right_trigger * 0.05 - gamepad2.left_trigger * 0.05
+            claw.rotateClaw(clawSpeed)
 
-            val speed = (0.35 + 0.5 * gamepad1.left_trigger)
+            val speed = (0.7 + 0.3 * gamepad1.left_trigger - 0.4 * gamepad1.right_trigger)
             if (gamepad1.a) {
                 usingFieldCentric.set(!usingFieldCentric.get())
             }

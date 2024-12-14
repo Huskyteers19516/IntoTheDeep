@@ -15,7 +15,7 @@ class Claw(hardwareMap: HardwareMap) {
      * (like a unit circle)
      */
     fun rotateClaw(angle: Double) {
-        clawRotatorPosition = angle / 180
+        clawRotatorPosition = angle
     }
 
     fun checkPosition(s: Double, dest: Double): Boolean {

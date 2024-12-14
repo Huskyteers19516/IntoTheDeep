@@ -12,8 +12,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles
 import org.firstinspires.ftc.teamcode.MecanumDrive
 import org.firstinspires.ftc.teamcode.huskyteers.hardware.ArmSlide
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.Basket
 import org.firstinspires.ftc.teamcode.huskyteers.hardware.Claw
-import org.firstinspires.ftc.teamcode.huskyteers.hardware.Extender
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.HorizontalExtender
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.VerticalExtender
 import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
@@ -62,7 +64,9 @@ abstract class HuskyOpMode(var startInfo: StartInfo) : LinearOpMode() {
     val drive: MecanumDrive by lazy { MecanumDrive(hardwareMap, startInfo.position.pose2d) }
     val armSlide: ArmSlide by lazy { ArmSlide(hardwareMap) }
     val claw: Claw by lazy { Claw(hardwareMap) }
-    val extender: Extender by lazy { Extender(hardwareMap) }
+    val horizontalExtender: HorizontalExtender by lazy { HorizontalExtender(hardwareMap) }
+    val verticalExtender: VerticalExtender by lazy { VerticalExtender(hardwareMap) }
+    val basket: Basket by lazy { Basket(hardwareMap) }
     val visionPortal: VisionPortal by lazy {
         VisionPortal.Builder().apply {
             setCamera(hardwareMap.get(WebcamName::class.java, "Webcam 1"))
