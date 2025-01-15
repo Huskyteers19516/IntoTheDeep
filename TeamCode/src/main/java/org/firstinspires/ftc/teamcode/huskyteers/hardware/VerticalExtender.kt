@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.huskyteers.hardware
 
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket
+import com.acmerobotics.roadrunner.Action
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
 
@@ -18,17 +20,35 @@ class VerticalExtender(hardwareMap: HardwareMap) {
 
     private val EXTENDED = 300;
     private val RETRACTED = 0;
-    fun extend() {
-        position = EXTENDED
-        state = State.EXTENDED
+    fun extend(): Action {
+        return object : Action {
+            private var initialized = false
+
+            override fun run(p: TelemetryPacket): Boolean {
+                if (!initialized) {
+                    this@VerticalExtender.position = EXTENDED
+                    initialized = true
+                }
+
+                return this@VerticalExtender.position == EXTENDED
+            }
+        }
     }
 
-    fun retract() {
-        position = RETRACTED
-        state = State.RETRACTED
+    fun retract(): Action {
+        return object : Action {
+            private var initialized = false
 
+            override fun run(p: TelemetryPacket): Boolean {
+                if (!initialized) {
+                    this@VerticalExtender.position = RETRACTED
+                    initialized = true
+                }
+
+                return this@VerticalExtender.position == RETRACTED
+            }
+        }
     }
-
     var position: Int
         get() = motor.currentPosition
         set(pos) {

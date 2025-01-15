@@ -3,17 +3,28 @@ package org.firstinspires.ftc.teamcode.huskyteers.opmode
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.Action
+import com.acmerobotics.roadrunner.InstantAction
 import com.acmerobotics.roadrunner.Pose2d
+import com.acmerobotics.roadrunner.SequentialAction
+import com.acmerobotics.roadrunner.SleepAction
 import com.huskyteers.paths.StartInfo
 import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode
-import org.firstinspires.ftc.teamcode.huskyteers.hardware.ArmSlide
-import org.firstinspires.ftc.teamcode.huskyteers.hardware.VerticalExtender
 import org.firstinspires.ftc.teamcode.huskyteers.utils.GamepadUtils
 import java.util.concurrent.atomic.AtomicBoolean
 
 class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
     private val dash: FtcDashboard = FtcDashboard.getInstance()
-    private var runningActions: List<Action> = ArrayList()
+    private var runningActions: MutableList<Action> = ArrayList()
+
+    enum class State {
+        READY_TO_PICK_UP,
+        RETRACTED,
+        GOING_TO_TOP,
+        AT_TOP,
+        RELEASING
+    }
+
+    private val DELAY = 1.0
 
     override fun runOpMode() {
         waitForStart()
@@ -23,81 +34,70 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
         gamepad1Utils.addRisingEdge(
             "start"
         ) {
-            drive.pose = Pose2d(
-                drive.pose.position, 0.0
+            drive.localizer.pose = Pose2d(
+                drive.localizer.pose.position, 0.0
             )
         }
 
-        val usingFieldCentric = AtomicBoolean(false)
-
-        gamepad1Utils.addRisingEdge(
-            "right_bumper"
-        ) { armSlide.setPosition(ArmSlide.EXTEND_POSITION) }
-        gamepad1Utils.addRisingEdge(
-            "left_bumper"
-        ) { armSlide.setPosition(ArmSlide.RETRACT_POSITION) }
-
-        gamepad1Utils.addRisingEdge(
-            "b"
-        ) {
-            sampleRotation.ifPresent { rotation: Double ->
-                claw.rotateClaw(
-                    rotation
-                )
-            }
-        }
-
-        gamepad2Utils.addRisingEdge(
-            "x"
-        ) { claw.openClaw() }
-        gamepad2Utils.addRisingEdge(
-            "y"
-        ) { claw.closeClaw() }
+        val usingFieldCentric = AtomicBoolean(true)
 
         gamepad1Utils.addRisingEdge("a") {
             usingFieldCentric.set(!usingFieldCentric.get())
             gamepad1.rumble(200)
         }
-        gamepad1Utils.addRisingEdge(
-            "dpad_up"
-        ) {
-            visionPortal.resumeStreaming()
-        }
-        gamepad2Utils.addRisingEdge(
-            "dpad_up"
-        ) {
-            horizontalExtender.extend();
-        }
-        gamepad2Utils.addRisingEdge(
-            "dpad_down"
-        ) {
-            horizontalExtender.retract()
-        }
-        gamepad2Utils.addRisingEdge("b") {
-            if (verticalExtender.state == VerticalExtender.State.EXTENDED) {
-                verticalExtender.retract()
-            } else {
-                verticalExtender.extend()
+
+
+        var state = State.READY_TO_PICK_UP
+
+        gamepad1Utils.addRisingEdge("y") {
+            if (state == State.READY_TO_PICK_UP) {
+                runningActions.add(
+                    SequentialAction(
+                        horizontalExtender.retract(),
+                        InstantAction { state = State.RETRACTED })
+                )
+            } else if (state == State.RETRACTED) {
+                runningActions.add(
+                    SequentialAction(
+                        horizontalExtender.extend(),
+                        InstantAction { state = State.READY_TO_PICK_UP })
+                )
             }
         }
-        gamepad2Utils.addRisingEdge(
-            "left_bumper"
-        ) {
-            basket.drop()
-        }
-        gamepad2Utils.addRisingEdge(
-            "right_bumper"
-        ) {
-            basket.raise()
-        }
 
+        gamepad1Utils.addRisingEdge("x") {
+            if (state == State.READY_TO_PICK_UP) {
+                state = State.GOING_TO_TOP
+                runningActions.add(
+                    SequentialAction(
+                    InstantAction { bottomClaw.closeClaw() },
+                    SleepAction(DELAY),
+                    horizontalExtender.retract(),
+                    InstantAction { bottomClaw.clawRotatorPosition = 180.0 },
+                    SleepAction(DELAY),
+                    InstantAction { topClaw.closeClaw() },
+                    verticalExtender.extend(),
+                    InstantAction { state = State.AT_TOP }
+                ))
+            } else if (state == State.AT_TOP) {
+                state = State.RELEASING
+                runningActions.add(
+                    SequentialAction(
+                    InstantAction { topClaw.clawRotatorPosition = -180.0 },
+                    SleepAction(DELAY),
+                    InstantAction { topClaw.openClaw() },
+                    InstantAction { topClaw.clawRotatorPosition = 180.0 },
+                    SleepAction(DELAY),
+                    verticalExtender.retract(),
+                    InstantAction { state = State.RETRACTED }
+                ))
+            }
+        }
         while (opModeIsActive() && !isStopRequested) {
             val packet = TelemetryPacket()
 
             gamepad1Utils.processUpdates(gamepad1)
             gamepad2Utils.processUpdates(gamepad2)
-            val clawSpeed = gamepad2.right_trigger * 0.05 - gamepad2.left_trigger * 0.05
-            claw.rotateClaw(clawSpeed)
 
             val speed = (0.7 + 0.3 * gamepad1.left_trigger - 0.4 * gamepad1.right_trigger)
             if (gamepad1.a) {

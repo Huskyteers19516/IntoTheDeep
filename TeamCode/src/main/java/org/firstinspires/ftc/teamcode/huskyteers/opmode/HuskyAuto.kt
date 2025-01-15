@@ -9,11 +9,11 @@ class HuskyAuto(startInfo: StartInfo) : HuskyOpMode(startInfo) {
     override fun runOpMode() {
         waitForStart()
         drive
-        claw
+        topClaw
         if (isStopRequested) return
 
         if (startInfo.position == StartInfo.Position.CloseToBasket) {
-            runBlocking(closeToBasketToRightmostBrick(drive.actionBuilder(drive.pose)).build())
+            runBlocking(closeToBasketToRightmostBrick(drive.actionBuilder(drive.localizer.pose)).build())
         }
     }
 }

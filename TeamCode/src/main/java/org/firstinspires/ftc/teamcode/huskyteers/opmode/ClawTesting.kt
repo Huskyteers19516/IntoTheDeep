@@ -18,7 +18,7 @@ class ClawTesting : HuskyOpMode(StartInfo(StartInfo.Color.BLUE, StartInfo.Positi
                 telemetry.addData("Dumb sample rotation", dumbSampleRotation)
                 telemetry.addData("Sample rotation", sampleRotation)
                 if (gamepad1.a) {
-                    claw.rotateClaw(sampleRotation.asDouble)
+                    topClaw.clawRotatorPosition = sampleRotation.asDouble
                 }
             } else {
                 telemetry.addData("Sample rotation", "Sample not found")

@@ -11,10 +11,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.robotcore.external.navigation.Position
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles
 import org.firstinspires.ftc.teamcode.MecanumDrive
-import org.firstinspires.ftc.teamcode.huskyteers.hardware.ArmSlide
-import org.firstinspires.ftc.teamcode.huskyteers.hardware.Basket
-import org.firstinspires.ftc.teamcode.huskyteers.hardware.Claw
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.BottomClaw
 import org.firstinspires.ftc.teamcode.huskyteers.hardware.HorizontalExtender
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.TopClaw
 import org.firstinspires.ftc.teamcode.huskyteers.hardware.VerticalExtender
 import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection
@@ -62,11 +61,10 @@ abstract class HuskyOpMode(var startInfo: StartInfo) : LinearOpMode() {
     private val cameraPosition = Position(DistanceUnit.INCH, 0.0, 0.0, 0.0, 0)
     private val cameraOrientation = YawPitchRollAngles(AngleUnit.DEGREES, 0.0, -90.0, 0.0, 0)
     val drive: MecanumDrive by lazy { MecanumDrive(hardwareMap, startInfo.position.pose2d) }
-    val armSlide: ArmSlide by lazy { ArmSlide(hardwareMap) }
-    val claw: Claw by lazy { Claw(hardwareMap) }
+    val topClaw: TopClaw by lazy { TopClaw(hardwareMap) }
+    val bottomClaw: BottomClaw by lazy { BottomClaw(hardwareMap) }
     val horizontalExtender: HorizontalExtender by lazy { HorizontalExtender(hardwareMap) }
     val verticalExtender: VerticalExtender by lazy { VerticalExtender(hardwareMap) }
-    val basket: Basket by lazy { Basket(hardwareMap) }
     val visionPortal: VisionPortal by lazy {
         VisionPortal.Builder().apply {
             setCamera(hardwareMap.get(WebcamName::class.java, "Webcam 1"))
@@ -109,7 +107,7 @@ abstract class HuskyOpMode(var startInfo: StartInfo) : LinearOpMode() {
     ) {
         drive.updatePoseEstimate()
 
-        val angleVector = drive.pose.heading.vec()
+        val angleVector = drive.localizer.pose.heading.vec()
         val angle = -atan2(angleVector.y, angleVector.x)
 
         val rotatedX = gamepadLeftStickX * cos(angle) - gamepadLeftStickY * sin(angle)
@@ -130,7 +128,7 @@ abstract class HuskyOpMode(var startInfo: StartInfo) : LinearOpMode() {
             .mapToDouble { aprilTagDetection: AprilTagDetection -> aprilTagDetection.robotPose.orientation.yaw }
             .average()
         if (averageX.isPresent && averageY.isPresent && averageYaw.isPresent) {
-            drive.pose = Pose2d(averageX.asDouble, averageY.asDouble, averageYaw.asDouble)
+            drive.localizer.pose = Pose2d(averageX.asDouble, averageY.asDouble, averageYaw.asDouble)
         }
     }
 
