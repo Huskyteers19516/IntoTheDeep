@@ -44,7 +44,7 @@ stateDiagram-v2
 |       A        | Switch between tank and field centric                     |
 |       B        | Nothing                                                   |
 |       X        | Grab sample and raise to basket, or release sample at top |
-|       Y        | Nothing                                                   |
+|       Y        | Extend or retract claw at bottom                          |
 | Left Joystick  | Move robot                                                |
 | Right Joystick | Rotate robot                                              |
 |  Left Trigger  | Nothing                                                   |
