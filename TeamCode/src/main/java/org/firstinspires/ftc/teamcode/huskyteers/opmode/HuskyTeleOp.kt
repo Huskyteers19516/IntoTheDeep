@@ -18,13 +18,13 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
 
     enum class State {
         READY_TO_PICK_UP,
+        EXTENDING,
         RETRACTED,
+        RETRACTING,
         GOING_TO_TOP,
         AT_TOP,
         RELEASING
     }
-
-    private val DELAY = 1.0
 
     override fun runOpMode() {
         waitForStart()
@@ -47,16 +47,18 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
         }
 
 
-        var state = State.READY_TO_PICK_UP
+        var state = State.RETRACTED
 
         gamepad1Utils.addRisingEdge("y") {
             if (state == State.READY_TO_PICK_UP) {
+                state = State.RETRACTING
                 runningActions.add(
                     SequentialAction(
                         horizontalExtender.retract(),
                         InstantAction { state = State.RETRACTED })
                 )
             } else if (state == State.RETRACTED) {
+                state = State.EXTENDING
                 runningActions.add(
                     SequentialAction(
                         horizontalExtender.extend(),
@@ -70,27 +72,27 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
                 state = State.GOING_TO_TOP
                 runningActions.add(
                     SequentialAction(
-                    InstantAction { bottomClaw.closeClaw() },
-                    SleepAction(DELAY),
-                    horizontalExtender.retract(),
-                    InstantAction { bottomClaw.clawRotatorPosition = 180.0 },
-                    SleepAction(DELAY),
-                    InstantAction { topClaw.closeClaw() },
-                    verticalExtender.extend(),
-                    InstantAction { state = State.AT_TOP }
-                ))
+                        InstantAction { bottomClaw.closeClaw() },
+                        SleepAction(DELAY),
+                        horizontalExtender.retract(),
+                        InstantAction { bottomClaw.clawRotatorPosition = 180.0 },
+                        SleepAction(DELAY),
+                        InstantAction { topClaw.closeClaw() },
+                        verticalExtender.extend(),
+                        InstantAction { state = State.AT_TOP }
+                    ))
             } else if (state == State.AT_TOP) {
                 state = State.RELEASING
                 runningActions.add(
                     SequentialAction(
-                    InstantAction { topClaw.clawRotatorPosition = -180.0 },
-                    SleepAction(DELAY),
-                    InstantAction { topClaw.openClaw() },
-                    InstantAction { topClaw.clawRotatorPosition = 180.0 },
-                    SleepAction(DELAY),
-                    verticalExtender.retract(),
-                    InstantAction { state = State.RETRACTED }
-                ))
+                        InstantAction { topClaw.clawRotatorPosition = -180.0 },
+                        SleepAction(DELAY),
+                        InstantAction { topClaw.openClaw() },
+                        InstantAction { topClaw.clawRotatorPosition = 180.0 },
+                        SleepAction(DELAY),
+                        verticalExtender.retract(),
+                        InstantAction { state = State.RETRACTED }
+                    ))
             }
         }
         while (opModeIsActive() && !isStopRequested) {
@@ -136,5 +138,9 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
             sleep(20)
         }
         visionPortal.close()
+    }
+
+    companion object {
+        private const val DELAY = 1.0
     }
 }
