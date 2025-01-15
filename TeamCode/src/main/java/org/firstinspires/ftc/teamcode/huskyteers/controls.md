@@ -4,9 +4,12 @@
 
 ```mermaid
 stateDiagram-v2
+    direction LR
+    classDef edgeLabel color: white, width: 30px, height: 30px, border-radius: 100%, background-color: green
     Ready: Ready to pick up
     GoingToTop: Going to top
     Top: At top
+    [*] --> Ready
     Ready --> Retracting: Y
     Retracting --> Retracted
     Retracted --> Extending: Y
@@ -21,11 +24,13 @@ stateDiagram-v2
 
 ```mermaid
 stateDiagram-v2
+    classDef edgeLabel color: white, width: 30px, height: 30px, border-radius: 100%, background-color: green
     Ready: Ready to pick up
     Top: At top
     Ready --> Retracted: Y
     Retracted --> Ready: Y
     Ready --> Top: X
+    note right of Top: When you press X, it dumps the sample and retracts
     Top --> Retracted: X
 ```
 
