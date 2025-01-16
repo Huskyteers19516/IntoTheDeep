@@ -1,18 +1,23 @@
 package org.firstinspires.ftc.teamcode.huskyteers.hardware
 
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket
-import com.acmerobotics.roadrunner.Action
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.Servo
-import kotlin.math.abs
 
 class BottomClaw(hardwareMap: HardwareMap) {
     private val clawOpenerServo: Servo = hardwareMap.get(Servo::class.java, "bottomClawOpener")
     private val clawRotatorServo: Servo = hardwareMap.get(Servo::class.java, "bottomClawRotator")
+
     init {
         clawRotatorServo.scaleRange(-180.0, 180.0)
     }
 
+    fun rotateUp() {
+        clawRotatorPosition = 180.0
+    }
+
+    fun rotateDown() {
+        clawRotatorPosition = -180.0
+    }
 
     fun openClaw() {
         clawOpenerPosition = OPEN_POSITION

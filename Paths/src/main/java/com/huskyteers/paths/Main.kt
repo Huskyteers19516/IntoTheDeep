@@ -3,7 +3,7 @@ package com.huskyteers.paths
 import com.noahbres.meepmeep.MeepMeep
 import com.noahbres.meepmeep.MeepMeep.Background
 import com.noahbres.meepmeep.core.colorscheme.ColorScheme
-import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeBlueDark
+import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedDark
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity
 
@@ -24,12 +24,17 @@ fun createRobot(colorScheme: ColorScheme): RoadRunnerBotEntity {
 }
 
 fun main() {
-    val backstageBot = createRobot(ColorSchemeBlueDark())
+    val backstageBot = createRobot(ColorSchemeRedDark())
+    val delay = 1.0
     backstageBot.runAction(
-        closeToBasketToRightmostBrick(
-            backstageBot.drive
-                .actionBuilder(StartInfo.Position.CloseToBasket.pose2d)
-        )
+        backstageBot.drive
+            .actionBuilder(StartInfo.Position.CloseToBasket.pose2d)
+            .run {
+                closeToBasketToRightmostBrick(this).waitSeconds(delay)
+            }
+            .run { toBasket(this).waitSeconds(delay) }
+            .run { basketToCenterBrick(this).waitSeconds(delay) }
+            .run { toBasket(this).waitSeconds(delay) }
             .build()
     )
 

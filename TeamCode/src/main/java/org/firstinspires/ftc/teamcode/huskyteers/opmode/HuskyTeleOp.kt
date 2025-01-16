@@ -2,19 +2,19 @@ package org.firstinspires.ftc.teamcode.huskyteers.opmode
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
-import com.acmerobotics.roadrunner.Action
 import com.acmerobotics.roadrunner.InstantAction
+import com.acmerobotics.roadrunner.NullAction
 import com.acmerobotics.roadrunner.Pose2d
 import com.acmerobotics.roadrunner.SequentialAction
 import com.acmerobotics.roadrunner.SleepAction
 import com.huskyteers.paths.StartInfo
 import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode
+import org.firstinspires.ftc.teamcode.huskyteers.utils.FailoverAction
 import org.firstinspires.ftc.teamcode.huskyteers.utils.GamepadUtils
 import java.util.concurrent.atomic.AtomicBoolean
 
 class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
     private val dash: FtcDashboard = FtcDashboard.getInstance()
-    private var runningActions: MutableList<Action> = ArrayList()
 
     enum class State {
         READY_TO_PICK_UP,
@@ -46,23 +46,26 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
             gamepad1.rumble(200)
         }
 
-
         var state = State.RETRACTED
+        var clawAction: FailoverAction? = null
 
         gamepad1Utils.addRisingEdge("y") {
             if (state == State.READY_TO_PICK_UP) {
                 state = State.RETRACTING
-                runningActions.add(
-                    SequentialAction(
-                        horizontalExtender.retract(),
-                        InstantAction { state = State.RETRACTED })
-                )
+                clawAction =
+                    FailoverAction(
+                        SequentialAction(
+                            horizontalExtender.retract(),
+                            InstantAction { state = State.RETRACTED }),
+                        NullAction()
+                    )
             } else if (state == State.RETRACTED) {
                 state = State.EXTENDING
-                runningActions.add(
+                clawAction = FailoverAction(
                     SequentialAction(
                         horizontalExtender.extend(),
-                        InstantAction { state = State.READY_TO_PICK_UP })
+                        InstantAction { state = State.READY_TO_PICK_UP }),
+                    NullAction()
                 )
             }
         }
@@ -70,7 +73,7 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
         gamepad1Utils.addRisingEdge("x") {
             if (state == State.READY_TO_PICK_UP) {
                 state = State.GOING_TO_TOP
-                runningActions.add(
+                clawAction = FailoverAction(
                     SequentialAction(
                         InstantAction { bottomClaw.closeClaw() },
                         SleepAction(DELAY),
@@ -80,10 +83,12 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
                         InstantAction { topClaw.closeClaw() },
                         verticalExtender.extend(),
                         InstantAction { state = State.AT_TOP }
-                    ))
+                    ),
+                    NullAction()
+                )
             } else if (state == State.AT_TOP) {
                 state = State.RELEASING
-                runningActions.add(
+                clawAction = FailoverAction(
                     SequentialAction(
                         InstantAction { topClaw.clawRotatorPosition = -180.0 },
                         SleepAction(DELAY),
@@ -92,7 +97,9 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
                         SleepAction(DELAY),
                         verticalExtender.retract(),
                         InstantAction { state = State.RETRACTED }
-                    ))
+                    ),
+                    NullAction()
+                )
             }
         }
         while (opModeIsActive() && !isStopRequested) {
@@ -102,9 +109,7 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
             gamepad2Utils.processUpdates(gamepad2)
 
             val speed = (0.7 + 0.3 * gamepad1.left_trigger - 0.4 * gamepad1.right_trigger)
-            if (gamepad1.a) {
-                usingFieldCentric.set(!usingFieldCentric.get())
-            }
+
             if (usingFieldCentric.get()) {
                 telemetry.addData("Drive Mode", "Field Centric")
                 fieldCentricDriveRobot(
@@ -123,15 +128,7 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
                 )
             }
 
-            // update running actions
-            val newActions: MutableList<Action> = ArrayList()
-            for (action in runningActions) {
-                action.preview(packet.fieldOverlay())
-                if (action.run(packet)) {
-                    newActions.add(action)
-                }
-            }
-            runningActions = newActions
+            clawAction = if (clawAction?.run(packet) == true) clawAction else null
 
             dash.sendTelemetryPacket(packet)
             telemetry.update()
