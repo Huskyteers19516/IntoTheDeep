@@ -65,5 +65,20 @@ fun toBasket(actionBuilder: TrajectoryActionBuilder): TrajectoryActionBuilder {
             ),
             BASKET_ANGLE
         )
+}
 
+fun toParking(actionBuilder: TrajectoryActionBuilder): TrajectoryActionBuilder {
+    val angleAboveWall = 20.0
+    return actionBuilder
+        .setTangent(Math.toRadians(angleAboveWall))
+        .splineToSplineHeading(
+            Pose2d(
+                Vector2d(
+                    TILE_LENGTH * 1.5,
+                    TILE_LENGTH * -3 + HEIGHT / 2
+                ),
+                Math.toRadians(90.0),
+            ),
+            Math.toRadians(-angleAboveWall)
+        )
 }

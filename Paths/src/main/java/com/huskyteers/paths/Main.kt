@@ -35,6 +35,7 @@ fun main() {
             .run { toBasket(this).waitSeconds(delay) }
             .run { basketToCenterBrick(this).waitSeconds(delay) }
             .run { toBasket(this).waitSeconds(delay) }
+            .run { toParking(this) }
             .build()
     )
 

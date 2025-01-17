@@ -2,14 +2,13 @@ package org.firstinspires.ftc.teamcode.huskyteers.opmode
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
+import com.acmerobotics.roadrunner.Action
 import com.acmerobotics.roadrunner.InstantAction
-import com.acmerobotics.roadrunner.NullAction
 import com.acmerobotics.roadrunner.Pose2d
 import com.acmerobotics.roadrunner.SequentialAction
 import com.acmerobotics.roadrunner.SleepAction
 import com.huskyteers.paths.StartInfo
 import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode
-import org.firstinspires.ftc.teamcode.huskyteers.utils.FailoverAction
 import org.firstinspires.ftc.teamcode.huskyteers.utils.GamepadUtils
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -47,58 +46,52 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
         }
 
         var state = State.RETRACTED
-        var clawAction: FailoverAction? = null
+        var clawAction: Action? = null
 
         gamepad1Utils.addRisingEdge("y") {
-            if (state == State.READY_TO_PICK_UP) {
+            if (state == State.READY_TO_PICK_UP || state == State.EXTENDING) {
                 state = State.RETRACTING
                 clawAction =
-                    FailoverAction(
-                        SequentialAction(
-                            horizontalExtender.retract(),
-                            InstantAction { state = State.RETRACTED }),
-                        NullAction()
-                    )
-            } else if (state == State.RETRACTED) {
-                state = State.EXTENDING
-                clawAction = FailoverAction(
                     SequentialAction(
-                        horizontalExtender.extend(),
-                        InstantAction { state = State.READY_TO_PICK_UP }),
-                    NullAction()
-                )
+                        InstantAction { bottomClaw.openClaw() },
+                        InstantAction { bottomClaw.rotateDown() },
+                        horizontalExtender.retract(),
+                        InstantAction { state = State.RETRACTED }
+                    )
+            } else if (state == State.RETRACTED || state == State.RETRACTING) {
+                state = State.EXTENDING
+                clawAction = SequentialAction(
+                    InstantAction { bottomClaw.rotateUp() },
+                    horizontalExtender.extend(),
+                    InstantAction { state = State.READY_TO_PICK_UP })
             }
         }
 
         gamepad1Utils.addRisingEdge("x") {
             if (state == State.READY_TO_PICK_UP) {
                 state = State.GOING_TO_TOP
-                clawAction = FailoverAction(
-                    SequentialAction(
-                        InstantAction { bottomClaw.closeClaw() },
-                        SleepAction(DELAY),
-                        horizontalExtender.retract(),
-                        InstantAction { bottomClaw.clawRotatorPosition = 180.0 },
-                        SleepAction(DELAY),
-                        InstantAction { topClaw.closeClaw() },
-                        verticalExtender.extend(),
-                        InstantAction { state = State.AT_TOP }
-                    ),
-                    NullAction()
+                clawAction = SequentialAction(
+                    InstantAction { bottomClaw.closeClaw() },
+                    SleepAction(DELAY),
+                    InstantAction { bottomClaw.rotateUp() },
+                    horizontalExtender.retract(),
+                    InstantAction { topClaw.closeClaw() },
+                    InstantAction { bottomClaw.openClaw() },
+                    SleepAction(DELAY),
+                    InstantAction { topClaw.rotateUp() },
+                    verticalExtender.extend(),
+                    InstantAction { state = State.AT_TOP }
                 )
             } else if (state == State.AT_TOP) {
                 state = State.RELEASING
-                clawAction = FailoverAction(
-                    SequentialAction(
-                        InstantAction { topClaw.clawRotatorPosition = -180.0 },
-                        SleepAction(DELAY),
-                        InstantAction { topClaw.openClaw() },
-                        InstantAction { topClaw.clawRotatorPosition = 180.0 },
-                        SleepAction(DELAY),
-                        verticalExtender.retract(),
-                        InstantAction { state = State.RETRACTED }
-                    ),
-                    NullAction()
+                clawAction = SequentialAction(
+                    InstantAction { topClaw.rotateUp() },
+                    SleepAction(DELAY / 2),
+                    InstantAction { topClaw.openClaw() },
+                    SleepAction(DELAY),
+                    InstantAction { topClaw.rotateDown() },
+                    verticalExtender.retract(),
+                    InstantAction { state = State.RETRACTED }
                 )
             }
         }
@@ -129,6 +122,7 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
             }
 
             clawAction = if (clawAction?.run(packet) == true) clawAction else null
+            telemetry.addData("Claw State", state.name)
 
             dash.sendTelemetryPacket(packet)
             telemetry.update()
