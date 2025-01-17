@@ -62,7 +62,6 @@ class HuskyAuto(startInfo: StartInfo) : HuskyOpMode(startInfo) {
 
 
         if (startInfo.position == StartInfo.Position.CloseToBasket) {
-            drive.localizer.pose = startInfo.position.pose2d
             runBlocking(toBrickAction(::closeToBasketToRightmostBrick))
             runBlocking(toBasketAction())
             runBlocking(toBrickAction(::basketToCenterBrick))

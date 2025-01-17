@@ -7,12 +7,11 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 
 class HorizontalExtender(hardwareMap: HardwareMap) {
     private val motor = hardwareMap.get(DcMotor::class.java, "horizontalExtender")
+
     init {
         motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         motor.mode = DcMotor.RunMode.RUN_TO_POSITION
     }
-    val EXTENDED = 100
-    val RETRACTED = 0
 
     fun extend(): Action {
         return object : Action {
@@ -44,9 +43,14 @@ class HorizontalExtender(hardwareMap: HardwareMap) {
         }
     }
 
-    var position: Int
+    private var position: Int
         get() = motor.currentPosition
         set(pos) {
             motor.targetPosition = pos
         }
+
+    companion object {
+        private const val EXTENDED = 100
+        private const val RETRACTED = 0
+    }
 }

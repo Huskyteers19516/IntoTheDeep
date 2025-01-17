@@ -28,13 +28,13 @@ class TopClaw(hardwareMap: HardwareMap) {
     }
 
 
-    var clawOpenerPosition: Double
+    private var clawOpenerPosition: Double
         get() = clawOpenerServo.position
         set(pos) {
             clawOpenerServo.position = pos
         }
 
-    var clawRotatorPosition: Double
+    private var clawRotatorPosition: Double
         get() = clawRotatorServo.position
         set(pos) {
             clawRotatorServo.position = pos

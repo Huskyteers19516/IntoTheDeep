@@ -9,7 +9,6 @@ stateDiagram-v2
     Ready: Ready to pick up
     GoingToTop: Going to top
     Top: At top
-    [*] --> Ready
     Ready --> Retracting: Y
     Retracting --> Retracted
     Retracted --> Extending: Y

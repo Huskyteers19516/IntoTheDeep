@@ -27,7 +27,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Base class for any OpMode, whether it's teleop or autonomous.
+ * Base class for any OpMode, whether it's TeleOp or Autonomous.
  */
 abstract class HuskyOpMode(var startInfo: StartInfo) : LinearOpMode() {
     /**
@@ -71,9 +71,10 @@ abstract class HuskyOpMode(var startInfo: StartInfo) : LinearOpMode() {
             addProcessors(aprilTag, allianceColorBlob, neutralColorBlob)
         }.build()
     }
-    val aprilTag: AprilTagProcessor =
+    private val aprilTag: AprilTagProcessor by lazy {
         AprilTagProcessor.Builder().setCameraPose(cameraPosition, cameraOrientation).build()
-    private val sharedColorBlobBuilder: ColorBlobLocatorProcessor.Builder =
+    }
+    private val sharedColorBlobBuilder: ColorBlobLocatorProcessor.Builder by lazy {
         ColorBlobLocatorProcessor.Builder() // use a predefined color match
             .setContourMode(ColorBlobLocatorProcessor.ContourMode.EXTERNAL_ONLY) // exclude blobs inside blobs
             .setRoi(
@@ -86,12 +87,17 @@ abstract class HuskyOpMode(var startInfo: StartInfo) : LinearOpMode() {
             ) // search central 1/4 of camera view
             .setDrawContours(true) // Show contours on the Stream Preview
             .setBlurSize(5)
-    val allianceColorBlob: ColorBlobLocatorProcessor = sharedColorBlobBuilder
-        .setTargetColorRange(if (startInfo.color == StartInfo.Color.BLUE) ColorRange.BLUE else ColorRange.RED)
-        .build()
-    val neutralColorBlob: ColorBlobLocatorProcessor = sharedColorBlobBuilder
-        .setTargetColorRange(ColorRange.YELLOW)
-        .build()
+    }
+    private val allianceColorBlob: ColorBlobLocatorProcessor by lazy {
+        sharedColorBlobBuilder
+            .setTargetColorRange(if (startInfo.color == StartInfo.Color.BLUE) ColorRange.BLUE else ColorRange.RED)
+            .build()
+    }
+    private val neutralColorBlob: ColorBlobLocatorProcessor by lazy {
+        sharedColorBlobBuilder
+            .setTargetColorRange(ColorRange.YELLOW)
+            .build()
+    }
 
 
     fun driveRobot(drive: Double, strafe: Double, turn: Double, speed: Double) {

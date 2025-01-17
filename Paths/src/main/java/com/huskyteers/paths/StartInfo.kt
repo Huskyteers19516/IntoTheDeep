@@ -30,7 +30,5 @@ class StartInfo(var color: Color, var position: Position) {
         )
     }
 
-    companion object {
-
-    }
+    companion object
 }
