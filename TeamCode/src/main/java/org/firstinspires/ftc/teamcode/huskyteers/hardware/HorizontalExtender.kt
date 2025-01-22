@@ -10,7 +10,9 @@ class HorizontalExtender(hardwareMap: HardwareMap) {
 
     init {
         motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        motor.mode = DcMotor.RunMode.RUN_TO_POSITION
+        motor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        motor.targetPosition = 0
+        motor.mode = DcMotor.RunMode.RUN_USING_ENCODER
     }
 
     fun extend(): Action {
@@ -23,7 +25,7 @@ class HorizontalExtender(hardwareMap: HardwareMap) {
                     initialized = true
                 }
 
-                return this@HorizontalExtender.position == EXTENDED
+                return this@HorizontalExtender.position != EXTENDED
             }
         }
     }
@@ -38,7 +40,7 @@ class HorizontalExtender(hardwareMap: HardwareMap) {
                     initialized = true
                 }
 
-                return this@HorizontalExtender.position == RETRACTED
+                return this@HorizontalExtender.position != RETRACTED
             }
         }
     }
@@ -50,7 +52,7 @@ class HorizontalExtender(hardwareMap: HardwareMap) {
         }
 
     companion object {
-        private const val EXTENDED = 100
+        private const val EXTENDED = 2270
         private const val RETRACTED = 0
     }
 }

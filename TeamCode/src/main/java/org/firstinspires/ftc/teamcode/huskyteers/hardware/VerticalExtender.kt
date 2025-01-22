@@ -3,12 +3,15 @@ package org.firstinspires.ftc.teamcode.huskyteers.hardware
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.Action
 import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.HardwareMap
 
 class VerticalExtender(hardwareMap: HardwareMap) {
-    private val motor = hardwareMap.get(DcMotor::class.java, "verticalExtender")
+    private val motor = hardwareMap.get(DcMotorEx::class.java, "verticalExtender")
 
     init {
+        motor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER;
+        motor.targetPosition = 0
         motor.mode = DcMotor.RunMode.RUN_USING_ENCODER
         motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
     }
@@ -23,7 +26,7 @@ class VerticalExtender(hardwareMap: HardwareMap) {
                     initialized = true
                 }
 
-                return this@VerticalExtender.position == EXTENDED
+                return this@VerticalExtender.position != EXTENDED
             }
         }
     }
@@ -38,7 +41,7 @@ class VerticalExtender(hardwareMap: HardwareMap) {
                     initialized = true
                 }
 
-                return this@VerticalExtender.position == RETRACTED
+                return this@VerticalExtender.position != RETRACTED
             }
         }
     }
@@ -50,7 +53,7 @@ class VerticalExtender(hardwareMap: HardwareMap) {
         }
 
     companion object {
-        private const val EXTENDED = 300
+        private const val EXTENDED = -3497
         private const val RETRACTED = 0
     }
 }

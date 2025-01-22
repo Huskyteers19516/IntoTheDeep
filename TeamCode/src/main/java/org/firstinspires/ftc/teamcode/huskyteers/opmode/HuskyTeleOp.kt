@@ -123,8 +123,20 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
 
             clawAction = if (clawAction?.run(packet) == true) clawAction else null
             telemetry.addData("Claw State", state.name)
+            telemetry.addData(
+                "Left Stick Y", gamepad1.left_stick_y.toDouble(),
+            )
+            telemetry.addData(
+                "Left Stick X", gamepad1.left_stick_x.toDouble(),
+            )
+            telemetry.addData(
+                "Right Stick X", gamepad1.right_stick_x.toDouble(),
+            )
+
+
 
             dash.sendTelemetryPacket(packet)
+
             telemetry.update()
             sleep(20)
         }

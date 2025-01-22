@@ -54,3 +54,13 @@ stateDiagram-v2
 ### Gamepad 2
 
 No controls
+
+## Wiring
+
+### Expansion Hub
+
+| Location | Name               |
+|----------|--------------------|
+| Motor 0  | horizontalExtender |
+| Motor 1  | verticalExtenderg- |
+

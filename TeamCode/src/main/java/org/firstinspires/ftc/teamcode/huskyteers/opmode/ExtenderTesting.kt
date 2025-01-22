@@ -11,14 +11,17 @@ class ExtenderTesting :
         waitForStart()
         if (isStopRequested) return
 
-        horizontalExtender
+        val horizontalExtenderMotor = hardwareMap.dcMotor["horizontalExtender"]
+        val verticalExtenderMotor = hardwareMap.dcMotor["verticalExtender"]
         while (opModeIsActive() && !isStopRequested) {
-            if (gamepad1.a) {
-                horizontalExtender.extend()
-            } else if (gamepad1.b) {
-                horizontalExtender.retract()
-            }
-            telemetry.addData("Extender position", horizontalExtender.position)
+            horizontalExtenderMotor.power = -gamepad1.left_stick_y.toDouble()
+            verticalExtenderMotor.power = -gamepad1.right_stick_y.toDouble()
+
+            telemetry.addData(
+                "Horizontal extender position",
+                horizontalExtenderMotor.currentPosition
+            )
+            telemetry.addData("Vertical extender position", verticalExtenderMotor.currentPosition)
             telemetry.update()
             sleep(20)
         }
