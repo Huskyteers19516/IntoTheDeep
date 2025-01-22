@@ -13,6 +13,7 @@ class VerticalExtender(hardwareMap: HardwareMap) {
         motor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER;
         motor.targetPosition = 0
         motor.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        motor.power = 1.0
         motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
     }
 
