@@ -13,7 +13,7 @@ class VerticalExtender(hardwareMap: HardwareMap) {
         motor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER;
         motor.targetPosition = 0
         motor.mode = DcMotor.RunMode.RUN_USING_ENCODER
-        motor.power = 1.0
+        motor.power = 0.7
         motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
     }
 
@@ -27,7 +27,7 @@ class VerticalExtender(hardwareMap: HardwareMap) {
                     initialized = true
                 }
 
-                return this@VerticalExtender.position != EXTENDED
+                return this@VerticalExtender.motor.isBusy
             }
         }
     }
@@ -42,7 +42,7 @@ class VerticalExtender(hardwareMap: HardwareMap) {
                     initialized = true
                 }
 
-                return this@VerticalExtender.position != RETRACTED
+                return this@VerticalExtender.motor.isBusy
             }
         }
     }
