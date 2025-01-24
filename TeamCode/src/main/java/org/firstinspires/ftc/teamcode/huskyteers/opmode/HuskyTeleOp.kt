@@ -8,7 +8,9 @@ import com.acmerobotics.roadrunner.Pose2d
 import com.acmerobotics.roadrunner.SequentialAction
 import com.acmerobotics.roadrunner.SleepAction
 import com.huskyteers.paths.StartInfo
+import com.qualcomm.robotcore.hardware.DcMotor
 import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.HorizontalExtender
 import org.firstinspires.ftc.teamcode.huskyteers.utils.GamepadUtils
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -55,6 +57,9 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
                     SequentialAction(
                         InstantAction { bottomClaw.openClaw() },
                         InstantAction { bottomClaw.rotateDown() },
+                        InstantAction {
+                            horizontalExtender.runMode = DcMotor.RunMode.RUN_TO_POSITION
+                        },
                         horizontalExtender.retract(),
                         InstantAction { state = State.RETRACTED }
                     )
@@ -63,6 +68,9 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
                 clawAction = SequentialAction(
                     InstantAction { bottomClaw.rotateUp() },
                     horizontalExtender.extend(),
+                    InstantAction {
+                        horizontalExtender.runMode = DcMotor.RunMode.RUN_USING_ENCODER
+                    },
                     InstantAction { state = State.READY_TO_PICK_UP })
             }
         }
@@ -71,6 +79,9 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
             if (state == State.READY_TO_PICK_UP) {
                 state = State.GOING_TO_TOP
                 clawAction = SequentialAction(
+                    InstantAction {
+                        horizontalExtender.runMode = DcMotor.RunMode.RUN_TO_POSITION
+                    },
                     InstantAction { bottomClaw.closeClaw() },
                     SleepAction(DELAY),
                     InstantAction { bottomClaw.rotateUp() },
@@ -119,6 +130,18 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
                     -gamepad1.right_stick_x.toDouble(),
                     speed
                 )
+            }
+
+            if (state == State.READY_TO_PICK_UP) {
+                if (gamepad1.dpad_up) {
+                    if (horizontalExtender.position < HorizontalExtender.MAX_EXTENDED) {
+                        horizontalExtender.power = 1.0
+                    }
+                } else if (gamepad1.dpad_down) {
+                    horizontalExtender.power = -1.0
+                } else {
+                    horizontalExtender.power = 0.0
+                }
             }
 
             clawAction = if (clawAction?.run(packet) == true) clawAction else null
