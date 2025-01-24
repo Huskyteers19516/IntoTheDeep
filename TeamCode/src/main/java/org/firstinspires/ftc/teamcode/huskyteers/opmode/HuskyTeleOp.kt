@@ -132,6 +132,8 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
             telemetry.addData(
                 "Right Stick X", gamepad1.right_stick_x.toDouble(),
             )
+            telemetry.addData("Horizontal Extender Encoder", horizontalExtender.position)
+            telemetry.addData("Vertical Extender Encoder", verticalExtender.position)
 
 
 

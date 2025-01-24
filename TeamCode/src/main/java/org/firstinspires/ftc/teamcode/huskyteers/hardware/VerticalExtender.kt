@@ -47,7 +47,7 @@ class VerticalExtender(hardwareMap: HardwareMap) {
         }
     }
 
-    private var position: Int
+    var position: Int
         get() = motor.currentPosition
         set(pos) {
             motor.targetPosition = pos
