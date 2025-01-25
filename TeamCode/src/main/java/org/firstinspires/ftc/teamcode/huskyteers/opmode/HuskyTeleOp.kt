@@ -58,6 +58,7 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
                         InstantAction { bottomClaw.openClaw() },
                         InstantAction { bottomClaw.rotateDown() },
                         InstantAction {
+                            horizontalExtender.power = 0.7
                             horizontalExtender.runMode = DcMotor.RunMode.RUN_TO_POSITION
                         },
                         horizontalExtender.retract(),
@@ -69,6 +70,7 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
                     InstantAction { bottomClaw.rotateUp() },
                     horizontalExtender.extend(),
                     InstantAction {
+                        horizontalExtender.power = 0.0
                         horizontalExtender.runMode = DcMotor.RunMode.RUN_USING_ENCODER
                     },
                     InstantAction { state = State.READY_TO_PICK_UP })
@@ -80,6 +82,7 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
                 state = State.GOING_TO_TOP
                 clawAction = SequentialAction(
                     InstantAction {
+                        horizontalExtender.power = 0.7
                         horizontalExtender.runMode = DcMotor.RunMode.RUN_TO_POSITION
                     },
                     InstantAction { bottomClaw.closeClaw() },
