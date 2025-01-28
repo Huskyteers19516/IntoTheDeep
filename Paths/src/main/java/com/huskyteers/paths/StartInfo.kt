@@ -27,6 +27,9 @@ class StartInfo(var color: Color, var position: Position) {
                 TILE_LENGTH * -3 + HEIGHT / 2,
                 Math.toRadians(90.0)
             )
+        ),
+        None(
+            Pose2d(0.0, 0.0, 0.0)
         )
     }
 

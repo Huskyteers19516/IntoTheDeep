@@ -109,7 +109,6 @@ class ClawTesting : HuskyOpMode(StartInfo(StartInfo.Color.RED, StartInfo.Positio
             telemetry.update()
             sleep(20)
         }
-        visionPortal.close()
     }
 
     companion object {

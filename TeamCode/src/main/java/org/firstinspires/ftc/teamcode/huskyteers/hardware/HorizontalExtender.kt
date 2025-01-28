@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.HardwareMap
 
 class HorizontalExtender(hardwareMap: HardwareMap) {
-    private val motor = hardwareMap.get(DcMotorEx::class.java, "horizontalExtender")
+    val motor = hardwareMap.get(DcMotorEx::class.java, "horizontalExtender")
 
     init {
         motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -67,7 +67,7 @@ class HorizontalExtender(hardwareMap: HardwareMap) {
         }
 
     companion object {
-        const val MAX_EXTENDED = 2500
+        const val MAX_EXTENDED = 1500
         private const val EXTENDED = 1776
         private const val RETRACTED = 0
     }

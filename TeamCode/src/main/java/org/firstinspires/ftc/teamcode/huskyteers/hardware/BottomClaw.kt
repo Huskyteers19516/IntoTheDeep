@@ -7,16 +7,16 @@ class BottomClaw(hardwareMap: HardwareMap) {
     private val clawOpenerServo: Servo = hardwareMap.get(Servo::class.java, "bottomClawOpener")
     private val clawRotatorServo: Servo = hardwareMap.get(Servo::class.java, "bottomClawRotator")
 
-    init {
-        clawRotatorServo.scaleRange(-180.0, 180.0)
-    }
+//    init {
+//        clawRotatorServo.scaleRange(-180.0, 180.0)
+//    }
 
     fun rotateUp() {
-        clawRotatorPosition = 180.0
+        clawRotatorPosition = 1.0
     }
 
     fun rotateDown() {
-        clawRotatorPosition = -180.0
+        clawRotatorPosition = -1.0
     }
 
     fun openClaw() {
@@ -33,7 +33,7 @@ class BottomClaw(hardwareMap: HardwareMap) {
             clawOpenerServo.position = pos
         }
 
-    private var clawRotatorPosition: Double
+    public var clawRotatorPosition: Double
         get() = clawRotatorServo.position
         set(pos) {
             clawRotatorServo.position = pos
