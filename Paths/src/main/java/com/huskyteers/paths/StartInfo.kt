@@ -33,5 +33,9 @@ class StartInfo(var color: Color, var position: Position) {
         )
     }
 
-    companion object
+    companion object {
+        fun empty(): StartInfo {
+            return StartInfo(Color.RED, Position.None)
+        }
+    }
 }

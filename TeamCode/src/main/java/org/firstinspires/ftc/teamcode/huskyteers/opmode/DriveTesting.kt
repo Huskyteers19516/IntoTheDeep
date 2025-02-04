@@ -2,28 +2,16 @@ package org.firstinspires.ftc.teamcode.huskyteers.opmode
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
-import com.acmerobotics.roadrunner.InstantAction
-import com.acmerobotics.roadrunner.NullAction
 import com.acmerobotics.roadrunner.Pose2d
-import com.acmerobotics.roadrunner.SequentialAction
-import com.acmerobotics.roadrunner.SleepAction
 import com.huskyteers.paths.StartInfo
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode
-import org.firstinspires.ftc.teamcode.huskyteers.utils.FailoverAction
 import org.firstinspires.ftc.teamcode.huskyteers.utils.GamepadUtils
 import java.util.concurrent.atomic.AtomicBoolean
 
 @TeleOp
-class ClawTesting : HuskyOpMode(StartInfo(StartInfo.Color.RED, StartInfo.Position.CloseToBasket)) {
+class DriveTesting : HuskyOpMode(StartInfo.empty()) {
     private val dash: FtcDashboard = FtcDashboard.getInstance()
-
-    enum class State {
-        READY_TO_PICK_UP,
-        GOING_TO_TOP,
-        AT_TOP,
-        RELEASING
-    }
 
     override fun runOpMode() {
         waitForStart()
@@ -45,38 +33,7 @@ class ClawTesting : HuskyOpMode(StartInfo(StartInfo.Color.RED, StartInfo.Positio
             gamepad1.rumble(200)
         }
 
-        var state = State.READY_TO_PICK_UP
-        var clawAction: FailoverAction? = null
 
-        gamepad1Utils.addRisingEdge("x") {
-            if (state == State.READY_TO_PICK_UP) {
-                state = State.GOING_TO_TOP
-                clawAction = FailoverAction(
-                    SequentialAction(
-                        InstantAction { topClaw.closeClaw() },
-                        SleepAction(DELAY),
-                        InstantAction { topClaw.rotateUp() },
-                        verticalExtender.extend(),
-                        InstantAction { state = State.AT_TOP }
-                    ),
-                    NullAction()
-                )
-            } else if (state == State.AT_TOP) {
-                state = State.RELEASING
-                clawAction = FailoverAction(
-                    SequentialAction(
-                        InstantAction { topClaw.rotateUp() },
-                        SleepAction(DELAY),
-                        InstantAction { topClaw.openClaw() },
-                        SleepAction(DELAY),
-                        InstantAction { topClaw.rotateDown() },
-                        verticalExtender.retract(),
-                        InstantAction { state = State.READY_TO_PICK_UP }
-                    ),
-                    NullAction()
-                )
-            }
-        }
         while (opModeIsActive() && !isStopRequested) {
             val packet = TelemetryPacket()
 
@@ -103,9 +60,38 @@ class ClawTesting : HuskyOpMode(StartInfo(StartInfo.Color.RED, StartInfo.Positio
                 )
             }
 
-            clawAction = if (clawAction?.run(packet) == true) clawAction else null
+
+            telemetry.addData(
+                "Left Stick Y", gamepad1.left_stick_y.toDouble(),
+            )
+            telemetry.addData(
+                "Left Stick X", gamepad1.left_stick_x.toDouble(),
+            )
+            telemetry.addData(
+                "Right Stick X", gamepad1.right_stick_x.toDouble(),
+            )
+            telemetry.addData(
+                "IMU angle", drive.lazyImu.get().robotYawPitchRollAngles.yaw,
+            )
+            telemetry.addData(
+                "Localizer angle", Math.toDegrees(drive.localizer.pose.heading.toDouble()),
+            )
+
+            telemetry.addData("Right Back Encoder Velocity", drive.rightBack.velocity)
+            telemetry.addData("Right Back Encoder Position", drive.rightBack.currentPosition)
+
+            telemetry.addData("Right Front Encoder Velocity", drive.rightFront.velocity)
+            telemetry.addData("Right Front Encoder Position", drive.rightFront.currentPosition)
+
+            telemetry.addData("Left Front Encoder Velocity", drive.leftFront.velocity)
+            telemetry.addData("Left Front Encoder Position", drive.leftFront.currentPosition)
+
+            telemetry.addData("Right Back Encoder Velocity", drive.rightBack.velocity)
+            telemetry.addData("Right Back Encoder Position", drive.rightBack.currentPosition)
+
 
             dash.sendTelemetryPacket(packet)
+
             telemetry.update()
             sleep(20)
         }

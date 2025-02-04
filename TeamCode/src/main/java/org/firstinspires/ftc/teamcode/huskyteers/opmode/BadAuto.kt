@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.huskyteers.opmode
 
-import com.acmerobotics.roadrunner.PoseVelocity2d
-import com.acmerobotics.roadrunner.Vector2d
+import com.acmerobotics.roadrunner.ftc.runBlocking
 import com.huskyteers.paths.StartInfo
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.util.ElapsedTime
@@ -13,15 +12,16 @@ class BadAuto : HuskyOpMode(StartInfo(StartInfo.Color.BLUE, StartInfo.Position.N
     private val elapsedTime = ElapsedTime()
 
     override fun runOpMode() {
+        telemetry.addLine("THIS WILL MOVE IT STRAIGHT FORWARD 12 INCHES.")
         waitForStart()
         drive
-        bottomClaw
-        horizontalExtender
-        verticalExtender
-        topClaw
         if (isStopRequested) return
         while (opModeIsActive() && !isStopRequested) {
-            drive.setDrivePowers(PoseVelocity2d(Vector2d(0.0, 10.0), 0.0))
+            runBlocking(
+                drive.actionBuilder(drive.localizer.pose)
+                    .lineToY(12.0)
+                    .build()
+            )
         }
     }
 

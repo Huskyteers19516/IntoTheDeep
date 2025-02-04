@@ -5,11 +5,6 @@ import com.acmerobotics.roadrunner.Vector2d
 import com.huskyteers.paths.StartInfo
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.teamcode.MecanumDrive
-import org.firstinspires.ftc.teamcode.huskyteers.hardware.BottomClaw
-import org.firstinspires.ftc.teamcode.huskyteers.hardware.HorizontalExtender
-import org.firstinspires.ftc.teamcode.huskyteers.hardware.Lifter
-import org.firstinspires.ftc.teamcode.huskyteers.hardware.TopClaw
-import org.firstinspires.ftc.teamcode.huskyteers.hardware.VerticalExtender
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
@@ -48,12 +43,7 @@ abstract class HuskyOpMode(var startInfo: StartInfo) : LinearOpMode() {
      */
 //    private val cameraPosition = Position(DistanceUnit.INCH, 0.0, 0.0, 0.0, 0)
 //    private val cameraOrientation = YawPitchRollAngles(AngleUnit.DEGREES, 0.0, -90.0, 0.0, 0)
-    val drive: MecanumDrive by lazy { MecanumDrive(hardwareMap, startInfo.position.pose2d) }
-    val topClaw: TopClaw by lazy { TopClaw(hardwareMap) }
-    val bottomClaw: BottomClaw by lazy { BottomClaw(hardwareMap) }
-    val horizontalExtender: HorizontalExtender by lazy { HorizontalExtender(hardwareMap) }
-    val verticalExtender: VerticalExtender by lazy { VerticalExtender(hardwareMap) }
-    val lifter: Lifter by lazy { Lifter(hardwareMap) }
+    val drive: MecanumDrive = MecanumDrive(hardwareMap, startInfo.position.pose2d)
 //    val visionPortal: VisionPortal by lazy {
 //        VisionPortal.Builder().apply {
 //            setCamera(hardwareMap.get(WebcamName::class.java, "Webcam 1"))
