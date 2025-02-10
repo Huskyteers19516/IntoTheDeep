@@ -1,9 +1,7 @@
 package com.huskyteers.paths
 
-import com.acmerobotics.roadrunner.Pose2d
-import com.acmerobotics.roadrunner.Rotation2d
-import com.acmerobotics.roadrunner.TrajectoryActionBuilder
-import com.acmerobotics.roadrunner.Vector2d
+import com.acmerobotics.roadrunner.*
+import kotlin.math.atan2
 
 fun closeToBasketToRightmostBrick(actionBuilder: TrajectoryActionBuilder): TrajectoryActionBuilder {
     val angle = Rotation2d.exp(Math.toRadians(90.0))
@@ -35,10 +33,21 @@ fun basketToCenterBrick(actionBuilder: TrajectoryActionBuilder): TrajectoryActio
         )
 }
 
-fun basketToLeftmostBrick(actionBuilder: TrajectoryActionBuilder): TrajectoryActionBuilder {
-    val angle = Rotation2d.exp(Math.toRadians(90.0))
+fun basketToLeftmostBrick(
+    actionBuilder: TrajectoryActionBuilder,
+    rotateClawTo: (Double) -> Action
+): TrajectoryActionBuilder {
+    // The code takes the y displacement of the (leftmostBrick position) - (basket position)
+    val yDistance = TILE_LENGTH * -2.0 - (TILE_LENGTH * -3 + BASKET_OFFSET.x - clawOffset(BASKET_ANGLE).x)
+    val xDistance = TILE_LENGTH * -1 - (TILE_LENGTH * -3 + BASKET_OFFSET.y - clawOffset(BASKET_ANGLE).y)
+    // This is the optimal angle where the robot can just go straight and turn at an angle. Time efficient
+    val angleOffset = atan2(yDistance, xDistance)
+
+    rotateClawTo(angleOffset)
+    val angle = Rotation2d.exp(Math.toRadians(180.0-angleOffset))
     println(Math.toDegrees((BASKET_ANGLE + Math.PI).log()))
     return actionBuilder
+        .afterDisp(0.0, rotateClawTo(angle.toDouble()))
         .setTangent(BASKET_ANGLE + Math.PI)
         .splineToSplineHeading(
             Pose2d(
