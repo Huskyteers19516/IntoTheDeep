@@ -2,23 +2,22 @@ package org.firstinspires.ftc.teamcode.huskyteers.hardware
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.Action
-import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
 
 class IntakeSlide(hardwareMap: HardwareMap) {
-    private val servo1 = hardwareMap.servo["intakeSlide1"]
-    private val servo2 = hardwareMap.servo["intakeSlide2"]
-    private val servoEncoder1 = hardwareMap.analogInput["intakeSlideEncoder1"]
-    private val servoEncoder2 = hardwareMap.analogInput["intakeSlideEncoder2"]
+    private val leftServo = hardwareMap.servo["leftIntakeSlide"]
+    private val rightServo = hardwareMap.servo["rightIntakeSlide"]
+    private val leftServoEncoder = hardwareMap.analogInput["leftIntakeSlideEncoder"]
+    private val rightServoEncoder = hardwareMap.analogInput["rightIntakeSlideEncoder"]
 
 
-    val position = servoEncoder1.voltage
+    val position = leftServoEncoder.voltage
 
     var targetPosition: Double
-        get() = servo1.position
+        get() = leftServo.position
         set(value) {
-            servo1.position = value
-            servo2.position = value
+            leftServo.position = value
+            rightServo.position = value
         }
 
     private fun extendTo(position: Double): Action {
@@ -30,7 +29,7 @@ class IntakeSlide(hardwareMap: HardwareMap) {
                     targetPosition = position
                     initialized = true
                 }
-                return servoEncoder1.voltage == position
+                return leftServoEncoder.voltage == position
             }
         }
     }

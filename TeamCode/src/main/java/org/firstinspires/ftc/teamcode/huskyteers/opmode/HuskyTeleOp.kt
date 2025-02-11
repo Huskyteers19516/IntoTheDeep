@@ -2,15 +2,32 @@ package org.firstinspires.ftc.teamcode.huskyteers.opmode
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
-import com.acmerobotics.roadrunner.Action
-import com.acmerobotics.roadrunner.Pose2d
+import com.acmerobotics.roadrunner.*
 import com.huskyteers.paths.StartInfo
 import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.IntakeClaw
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.OuttakeClaw
 import org.firstinspires.ftc.teamcode.huskyteers.utils.GamepadUtils
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.max
 
 class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
     private val dash: FtcDashboard = FtcDashboard.getInstance()
+
+    enum class State {
+        RETRACTED,
+        EXTENDING,
+        EXTENDED,
+        RETRACTING,
+        MOVING_CLAW_DOWN,
+        MOVING_CLAW_UP,
+        CLAW_DOWN,
+        PICKING_UP,
+        PICKED_UP,
+        GOING_TO_TOP,
+        AT_TOP,
+        DROPPING,
+    }
 
 
     override fun runOpMode() {
@@ -18,6 +35,8 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
         if (isStopRequested) return
         val gamepad1Utils = GamepadUtils()
         val gamepad2Utils = GamepadUtils()
+
+        //#region Driving Controls
         gamepad1Utils.addRisingEdge(
             "start"
         ) {
@@ -32,8 +51,142 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
             usingFieldCentric.set(!usingFieldCentric.get())
             gamepad1.rumble(200)
         }
+        //#endregion
 
-        var clawAction: Action? = null
+        //#region Intake and Outtake Controls
+
+        var currentAction: Action? = null
+
+        var state = State.RETRACTED
+
+        gamepad1Utils.addRisingEdge("x") {
+            // Extend or retract the intake slide
+            if (state == State.RETRACTED) {
+                state = State.EXTENDING
+                currentAction = SequentialAction(
+                    intakeSlide.extend(),
+                    InstantAction {
+                        intakeClaw.open()
+                        state = State.EXTENDED
+                    }
+                )
+            } else if (state == State.EXTENDED) {
+                state = State.RETRACTING
+                currentAction = SequentialAction(
+                    InstantAction {
+                        intakeClaw.rotateUp()
+                    },
+                    intakeSlide.retract(),
+                    InstantAction {
+                        state = State.RETRACTED
+                    }
+                )
+            } else if (state == State.PICKED_UP) {
+                state = State.EXTENDING
+                currentAction = SequentialAction(
+                    InstantAction {
+                        outtakeClaw.open()
+                    },
+                    SleepAction(OuttakeClaw.GRAB_TIME),
+                    intakeSlide.extend(),
+                    InstantAction {
+                        intakeClaw.open()
+                    },
+                    InstantAction {
+                        state = State.EXTENDED
+                    }
+                )
+            }
+        }
+
+        gamepad1Utils.addRisingEdge("dpad_down") {
+            // Move the intake claw down
+            if (state == State.EXTENDED) {
+                state = State.MOVING_CLAW_DOWN
+                currentAction = SequentialAction(
+                    InstantAction {
+                        intakeClaw.rotateDown()
+                    },
+                    SleepAction(IntakeClaw.ROTATOR_TIME),
+                    InstantAction {
+                        state = State.CLAW_DOWN
+                    }
+                )
+            }
+        }
+
+
+        gamepad1Utils.addRisingEdge("dpad_up") {
+            // Move the intake claw up
+            if (state == State.CLAW_DOWN) {
+                currentAction = SequentialAction(
+                    InstantAction {
+                        intakeClaw.rotateUp()
+                    }, SleepAction(IntakeClaw.ROTATOR_TIME), InstantAction {
+                        state = State.EXTENDED
+                    }
+                )
+            }
+        }
+
+        gamepad1Utils.addRisingEdge("y") {
+            if (State.CLAW_DOWN == state) {
+                // Grab sample from submersible and retract into robot
+                state = State.PICKING_UP
+                currentAction = SequentialAction(
+                    InstantAction { intakeClaw.close() },
+                    SleepAction(IntakeClaw.GRAB_TIME),
+                    InstantAction {
+                        intakeClaw.rotateUp()
+                        outtakeClaw.rotateDown()
+                    },
+                    intakeSlide.retract(),
+                    InstantAction {
+                        outtakeClaw.close()
+                    },
+                    SleepAction(OuttakeClaw.GRAB_TIME),
+                    InstantAction {
+                        state = State.PICKED_UP
+                    }
+                )
+            } else if (state == State.PICKED_UP) {
+                // Grab sample with outtake claw and go to top
+                state = State.GOING_TO_TOP
+                currentAction = SequentialAction(
+                    InstantAction {
+                        outtakeClaw.close()
+                        intakeClaw.open()
+                    },
+                    SleepAction(max(OuttakeClaw.GRAB_TIME, IntakeClaw.GRAB_TIME)),
+                    outtakeSlide.extendToHighBasket(),
+                    InstantAction {
+                        outtakeClaw.rotateUp()
+                    },
+                    SleepAction(OuttakeClaw.ROTATOR_TIME),
+                    InstantAction {
+                        state = State.AT_TOP
+                    }
+                )
+            } else if (state == State.AT_TOP) {
+                // Drop sample into basket and retract outtake slide
+                state = State.DROPPING
+                currentAction = SequentialAction(
+                    InstantAction {
+                        outtakeClaw.open()
+                    },
+                    SleepAction(OuttakeClaw.GRAB_TIME),
+                    InstantAction {
+                        outtakeClaw.rotateDown()
+                    },
+                    outtakeSlide.retract(),
+                    InstantAction {
+                        state = State.RETRACTED
+                    }
+                )
+            }
+        }
+
+        //#endregion
 
         while (opModeIsActive() && !isStopRequested) {
             val packet = TelemetryPacket()
@@ -41,6 +194,7 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
             gamepad1Utils.processUpdates(gamepad1)
             gamepad2Utils.processUpdates(gamepad2)
 
+            //#region Driving
             val speed = (0.7 + 0.3 * gamepad1.left_trigger - 0.4 * gamepad1.right_trigger)
 
             if (usingFieldCentric.get()) {
@@ -61,8 +215,37 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
                 )
             }
 
+            //#endregion
 
-            clawAction = if (clawAction?.run(packet) == true) clawAction else null
+            //#region Slide Controls
+
+            if (arrayOf(
+                    State.EXTENDED,
+                    State.CLAW_DOWN,
+                    State.MOVING_CLAW_DOWN,
+                    State.MOVING_CLAW_UP
+                ).contains(state)
+            ) {
+                intakeSlide.targetPosition =
+                    (intakeSlide.targetPosition + (if (gamepad1.dpad_left) 1 else 0 - if (gamepad1.dpad_right) 1 else 0) * 0.01).coerceIn(
+                        0.0..1.0
+                    )
+            }
+
+            if (state == State.AT_TOP) {
+                // TODO: Set limits for outtake slide
+                outtakeSlide.targetPosition =
+                    (outtakeSlide.targetPosition + (if (gamepad1.dpad_left) 1 else 0 - if (gamepad1.dpad_right) 1 else 0)).coerceIn(
+                        0..5000
+                    )
+            }
+            //#endregion
+
+
+            currentAction = if (currentAction?.run(packet) == true) currentAction else null
+            dash.sendTelemetryPacket(packet)
+
+            //#region Telemetry
             telemetry.addData(
                 "Left Stick Y", gamepad1.left_stick_y.toDouble(),
             )
@@ -72,10 +255,46 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
             telemetry.addData(
                 "Right Stick X", gamepad1.right_stick_x.toDouble(),
             )
+            telemetry.addData(
+                "IMU angle", drive.lazyImu.get().robotYawPitchRollAngles.yaw,
+            )
+            telemetry.addData(
+                "Localizer angle", Math.toDegrees(drive.localizer.pose.heading.toDouble()),
+            )
 
+            telemetry.addData("Right Back Encoder Velocity", drive.rightBack.velocity)
+            telemetry.addData("Right Back Encoder Position", drive.rightBack.currentPosition)
 
+            telemetry.addData("Right Front Encoder Velocity", drive.rightFront.velocity)
+            telemetry.addData("Right Front Encoder Position", drive.rightFront.currentPosition)
 
-            dash.sendTelemetryPacket(packet)
+            telemetry.addData("Left Front Encoder Velocity", drive.leftFront.velocity)
+            telemetry.addData("Left Front Encoder Position", drive.leftFront.currentPosition)
+
+            telemetry.addData("Right Back Encoder Velocity", drive.rightBack.velocity)
+            telemetry.addData("Right Back Encoder Position", drive.rightBack.currentPosition)
+
+            telemetry.addData(
+                "Left Stick Y", gamepad1.left_stick_y.toDouble(),
+            )
+            telemetry.addData(
+                "Left Stick X", gamepad1.left_stick_x.toDouble(),
+            )
+            telemetry.addData(
+                "Right Stick X", gamepad1.right_stick_x.toDouble(),
+            )
+            telemetry.addData("State", state.name)
+            telemetry.addData("Claw Action", currentAction?.toString() ?: "No action")
+            telemetry.addData("Intake Slide Position", intakeSlide.position)
+            telemetry.addData("Intake Slide Target Position", intakeSlide.targetPosition)
+            telemetry.addData("Outtake Slide Position", outtakeSlide.position)
+            telemetry.addData("Outtake Slide Target Position", outtakeSlide.targetPosition)
+            telemetry.addData("Intake Claw Rotator Angle", intakeClaw.rotatorAngle)
+            telemetry.addData("Intake Claw Grabber Position", intakeClaw.grabberPosition)
+            telemetry.addData("Intake Claw Grabber Rotator Angle", intakeClaw.grabberRotatorAngle)
+            telemetry.addData("Outtake Claw Rotator Angle", outtakeClaw.rotatorAngle)
+            telemetry.addData("Outtake Claw Grabber Position", outtakeClaw.grabberPosition)
+            //#endregion
 
             telemetry.update()
             sleep(20)

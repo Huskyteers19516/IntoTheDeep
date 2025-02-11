@@ -1,13 +1,12 @@
 package org.firstinspires.ftc.teamcode.huskyteers.opmode
 
-import com.acmerobotics.roadrunner.Pose2d
-import com.acmerobotics.roadrunner.TrajectoryActionBuilder
-import com.acmerobotics.roadrunner.Vector2d
+import com.acmerobotics.roadrunner.*
 import com.acmerobotics.roadrunner.ftc.runBlocking
 import com.huskyteers.paths.StartInfo
 import com.huskyteers.paths.basketToLeftmostBrick
 import com.huskyteers.paths.closeToBasketToRightmostBrick
 import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.IntakeClaw
 
 class HuskyAuto(startInfo: StartInfo) : HuskyOpMode(startInfo) {
     private fun actionBuilder(startPose: Pose2d): TrajectoryActionBuilder =
@@ -24,13 +23,16 @@ class HuskyAuto(startInfo: StartInfo) : HuskyOpMode(startInfo) {
                     closeToBasketToRightmostBrick(this)
                 }
                 .run {
-                    basketToLeftmostBrick(this, intakeClaw::rotateClaw)
+                    basketToLeftmostBrick(
+                        this
+                    ) { angle ->
+                        SequentialAction(
+                            InstantAction { intakeClaw.grabberRotatorAngle = angle },
+                            SleepAction(IntakeClaw.ROTATOR_TIME)
+                        )
+                    }
                 }
                 .build()
         )
-    }
-
-    companion object {
-        const val DELAY = 1.0
     }
 }

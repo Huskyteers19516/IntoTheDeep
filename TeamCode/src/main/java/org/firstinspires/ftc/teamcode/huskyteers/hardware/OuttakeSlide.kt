@@ -6,20 +6,25 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
 
 class OuttakeSlide(hardwareMap: HardwareMap) {
-    private val motor = hardwareMap.dcMotor["outtakeSlide"]
+    private val leftMotor = hardwareMap.dcMotor["leftSpeedOuttakeSlide"]
+    private val rightMotor = hardwareMap.dcMotor["rightSpeedOuttakeSlide"]
 
     init {
-        motor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        motor.targetPosition = 0
+        leftMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        leftMotor.targetPosition = 0
+        rightMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        rightMotor.targetPosition = 0
     }
 
-    val position = motor.currentPosition
+    val position = leftMotor.currentPosition
 
     var targetPosition: Int
-        get() = motor.targetPosition
+        get() = leftMotor.targetPosition
         set(value) {
-            motor.mode = DcMotor.RunMode.RUN_TO_POSITION
-            motor.targetPosition = value
+            leftMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
+            leftMotor.targetPosition = value
+            rightMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
+            rightMotor.targetPosition = value
         }
 
     private fun extendTo(position: Int): Action {
@@ -31,7 +36,7 @@ class OuttakeSlide(hardwareMap: HardwareMap) {
                     targetPosition = position
                     initialized = true
                 }
-                return motor.isBusy
+                return leftMotor.isBusy
             }
         }
     }
