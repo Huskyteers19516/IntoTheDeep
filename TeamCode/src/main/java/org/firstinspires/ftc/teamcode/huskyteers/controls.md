@@ -28,9 +28,9 @@ stateDiagram-v2
     Extending --> Extended
     Extended --> Retracting: X
     Retracting --> Retracted
-    Extended --> MovingClawDown: D-Pad Down
+    Extended --> MovingClawDown: Down
     MovingClawDown --> ClawDown
-    ClawDown --> MovingClawUp: D-Pad Up
+    ClawDown --> MovingClawUp: Up
     MovingClawUp --> Extended
     ClawDown --> PickingUp: Y
     PickingUp --> PickedUp
@@ -53,8 +53,8 @@ stateDiagram-v2
     [*] --> Retracted
     Retracted --> Extended: X
     Extended --> Retracted: X
-    Extended --> ClawDown: D-Pad Down
-    ClawDown --> Extended: D-Pad Up
+    Extended --> ClawDown: Down
+    ClawDown --> Extended: Up
     ClawDown --> PickedUp: Y
     PickedUp --> Extended: X
     PickedUp --> Top: Y
