@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.huskyteers.opmode
 
 import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.config.Config
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.*
 import com.huskyteers.paths.StartInfo
@@ -8,9 +10,10 @@ import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode
 import org.firstinspires.ftc.teamcode.huskyteers.hardware.IntakeClaw
 import org.firstinspires.ftc.teamcode.huskyteers.hardware.OuttakeClaw
 import org.firstinspires.ftc.teamcode.huskyteers.utils.GamepadUtils
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.max
 
+
+@Config
 class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
     private val dash: FtcDashboard = FtcDashboard.getInstance()
 
@@ -31,10 +34,18 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
 
 
     override fun runOpMode() {
+        intakeSlide
+        outtakeSlide
+        intakeClaw
+        outtakeClaw
+        telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
+
         waitForStart()
         if (isStopRequested) return
         val gamepad1Utils = GamepadUtils()
         val gamepad2Utils = GamepadUtils()
+
+        var outtakeSlideHoldPosition = outtakeSlide.position
 
         //#region Driving Controls
         gamepad1Utils.addRisingEdge(
@@ -45,10 +56,10 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
             )
         }
 
-        val usingFieldCentric = AtomicBoolean(true)
+        var usingFieldCentric = true
 
         gamepad1Utils.addRisingEdge("a") {
-            usingFieldCentric.set(!usingFieldCentric.get())
+            usingFieldCentric = !usingFieldCentric
             gamepad1.rumble(200)
         }
         //#endregion
@@ -113,6 +124,12 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
                     }
                 )
             }
+        }
+
+        var outtakeSlideFast = false
+
+        gamepad1Utils.addRisingEdge("b") {
+            outtakeSlideFast = !outtakeSlideFast
         }
 
 
@@ -188,6 +205,7 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
 
         //#endregion
 
+
         while (opModeIsActive() && !isStopRequested) {
             val packet = TelemetryPacket()
 
@@ -195,9 +213,10 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
             gamepad2Utils.processUpdates(gamepad2)
 
             //#region Driving
-            val speed = (0.7 + 0.3 * gamepad1.left_trigger - 0.4 * gamepad1.right_trigger)
+            val speed =
+                (DEFAULT_SPEED + SPEED_BOOST * gamepad1.left_trigger - SPEED_REDUCTION * gamepad1.right_trigger)
 
-            if (usingFieldCentric.get()) {
+            if (usingFieldCentric) {
                 telemetry.addData("Drive Mode", "Field Centric")
                 fieldCentricDriveRobot(
                     gamepad1.left_stick_y.toDouble(),
@@ -226,18 +245,31 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
                     State.MOVING_CLAW_UP
                 ).contains(state)
             ) {
-                intakeSlide.targetPosition =
-                    (intakeSlide.targetPosition + (if (gamepad1.dpad_left) 1 else 0 - if (gamepad1.dpad_right) 1 else 0) * 0.01).coerceIn(
-                        0.0..1.0
-                    )
+                intakeSlide.targetPosition += (if (gamepad1.dpad_left) 1 else 0 - if (gamepad1.dpad_right) 1 else 0) * INTAKE_SLIDE_SPEED
             }
 
             if (state == State.AT_TOP) {
-                // TODO: Set limits for outtake slide
-                outtakeSlide.targetPosition =
-                    (outtakeSlide.targetPosition + (if (gamepad1.dpad_left) 1 else 0 - if (gamepad1.dpad_right) 1 else 0)).coerceIn(
-                        0..5000
-                    )
+                val outtakeSpeed = if (gamepad1.dpad_left) 1.0 else 0.0 - if (gamepad1.dpad_right) 1.0 else 0.0
+
+                if (outtakeSpeed != 0.0) {
+                    if (OUTTAKE_SLIDE_USING_ALL_MOTORS) {
+                        outtakeSlide.allMotorSpeed =
+                            outtakeSpeed * (if (outtakeSlideFast) OUTTAKE_SLIDE_FAST_POWER else OUTTAKE_SLIDE_SLOW_POWER)
+                    } else {
+                        outtakeSlide.speedMotorSpeed =
+                            outtakeSpeed * (if (outtakeSlideFast) OUTTAKE_SLIDE_FAST_POWER else OUTTAKE_SLIDE_SLOW_POWER)
+                    }
+                } else {
+                    outtakeSlide.targetPosition = outtakeSlideHoldPosition
+                }
+                telemetry.addData("Outtake Slide Hold Position", outtakeSlideHoldPosition)
+                telemetry.addData("Outtake Slide Super Brake Enabled", OUTTAKE_SLIDE_SUPER_BRAKE)
+                telemetry.addData(
+                    "Outtake Slide Currently Holding",
+                    outtakeSpeed == 0.0 && OUTTAKE_SLIDE_SUPER_BRAKE
+                )
+                telemetry.addData("Outtake Slide Using All Motors", OUTTAKE_SLIDE_USING_ALL_MOTORS)
+                telemetry.addData("Outtake Slide Fast", outtakeSlideFast)
             }
             //#endregion
 
@@ -258,6 +290,10 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
             telemetry.addData(
                 "IMU angle", drive.lazyImu.get().robotYawPitchRollAngles.yaw,
             )
+            telemetry.addData(
+                "Pose", drive.localizer.pose.toString(),
+            )
+            telemetry.addData("Speed", speed)
             telemetry.addData(
                 "Localizer angle", Math.toDegrees(drive.localizer.pose.heading.toDouble()),
             )
@@ -301,7 +337,32 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
         }
     }
 
+    @Config
     companion object {
-        private const val DELAY = 1.0
+        @JvmField
+        var OUTTAKE_SLIDE_USING_ALL_MOTORS = false
+
+        @JvmField
+        var OUTTAKE_SLIDE_SUPER_BRAKE = true
+
+        @JvmField
+        var OUTTAKE_SLIDE_SLOW_POWER = 0.5
+
+        @JvmField
+        var OUTTAKE_SLIDE_FAST_POWER = 1.0
+
+        @JvmField
+        var INTAKE_SLIDE_SPEED = 0.01
+
+        @JvmField
+        var DEFAULT_SPEED = 0.7
+
+        @JvmField
+        var SPEED_BOOST = 0.3
+
+        @JvmField
+        var SPEED_REDUCTION = 0.4
     }
 }
+
+

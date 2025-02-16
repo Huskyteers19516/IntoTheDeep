@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.huskyteers.hardware
 
+import com.acmerobotics.dashboard.config.Config
 import com.qualcomm.robotcore.hardware.HardwareMap
 
+@Config
 class IntakeClaw(hardwareMap: HardwareMap) {
     private val leftRotatorServo = hardwareMap.servo["leftIntakeClawRotator"]
     private val rightRotatorServo = hardwareMap.servo["rightIntakeClawRotator"]
@@ -34,23 +36,34 @@ class IntakeClaw(hardwareMap: HardwareMap) {
         }
 
     fun rotateDown() {
-        rotatorAngle = 0.0
+        rotatorAngle = ROTATE_DOWN_ANGLE
     }
 
     fun rotateUp() {
-        rotatorAngle = 180.0
+        rotatorAngle = ROTATE_UP_ANGLE
     }
 
     fun open() {
-        grabberPosition = 0.0
+        grabberPosition = OPEN_GRABBER_POSITION
     }
 
     fun close() {
-        grabberPosition = 1.0
+        grabberPosition = CLOSE_GRABBER_POSITION
     }
 
+    @Config
     companion object {
-        const val ROTATOR_TIME = 1.0
-        const val GRAB_TIME = 1.0
+        @JvmField
+        var ROTATOR_TIME = 1.0
+        @JvmField
+        var GRAB_TIME = 1.0
+        @JvmField
+        var ROTATE_DOWN_ANGLE = 0.0
+        @JvmField
+        var ROTATE_UP_ANGLE = 180.0
+        @JvmField
+        var OPEN_GRABBER_POSITION = 0.0
+        @JvmField
+        var CLOSE_GRABBER_POSITION = 1.0
     }
 }

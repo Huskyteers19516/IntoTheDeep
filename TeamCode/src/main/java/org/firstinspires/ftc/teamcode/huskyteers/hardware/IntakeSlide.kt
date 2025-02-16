@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.huskyteers.hardware
 
+import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.Action
 import com.qualcomm.robotcore.hardware.HardwareMap
@@ -11,13 +12,17 @@ class IntakeSlide(hardwareMap: HardwareMap) {
     private val rightServoEncoder = hardwareMap.analogInput["rightIntakeSlideEncoder"]
 
 
-    val position = leftServoEncoder.voltage
+    val position = leftServoEncoder.voltage / leftServoEncoder.maxVoltage
 
     var targetPosition: Double
         get() = leftServo.position
         set(value) {
-            leftServo.position = value
-            rightServo.position = value
+            val limitedValue = value.coerceIn(
+                INTAKE_SLIDE_RETRACTION,
+                INTAKE_SLIDE_EXTENSION
+            )
+            leftServo.position = limitedValue
+            rightServo.position = limitedValue
         }
 
     private fun extendTo(position: Double): Action {
@@ -29,22 +34,26 @@ class IntakeSlide(hardwareMap: HardwareMap) {
                     targetPosition = position
                     initialized = true
                 }
-                return leftServoEncoder.voltage == position
+                return this@IntakeSlide.position == position
             }
         }
     }
 
     fun extend(): Action {
-        return extendTo(EXTENDED)
+        return extendTo(INTAKE_SLIDE_EXTENSION)
     }
 
     fun retract(): Action {
-        return extendTo(RETRACTED)
+        return extendTo(INTAKE_SLIDE_RETRACTION)
     }
 
-
+    @Config
     companion object {
-        const val EXTENDED = 1.0
-        const val RETRACTED = 0.0
+        @JvmField
+        var INTAKE_SLIDE_EXTENSION = 0.0
+
+        @JvmField
+        var INTAKE_SLIDE_RETRACTION = 1.0
     }
 }
+

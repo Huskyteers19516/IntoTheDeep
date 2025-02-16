@@ -1,30 +1,58 @@
 package org.firstinspires.ftc.teamcode.huskyteers.hardware
 
+import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.Action
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
 
+@Config
 class OuttakeSlide(hardwareMap: HardwareMap) {
-    private val leftMotor = hardwareMap.dcMotor["leftSpeedOuttakeSlide"]
-    private val rightMotor = hardwareMap.dcMotor["rightSpeedOuttakeSlide"]
+    private val leftSpeedMotor = hardwareMap.dcMotor["leftSpeedOuttakeSlide"]
+    private val rightSpeedMotor = hardwareMap.dcMotor["rightSpeedOuttakeSlide"]
+    private val leftTorqueMotor = hardwareMap.dcMotor["leftTorqueOuttakeSlide"]
+    private val rightTorqueMotor = hardwareMap.dcMotor["rightTorqueOuttakeSlide"]
 
     init {
-        leftMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        leftMotor.targetPosition = 0
-        rightMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        rightMotor.targetPosition = 0
+        arrayOf(leftSpeedMotor, rightSpeedMotor, leftTorqueMotor, rightTorqueMotor).forEach {
+            it.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+            it.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+            it.targetPosition = 0
+        }
     }
 
-    val position = leftMotor.currentPosition
+    val position = leftSpeedMotor.currentPosition
 
     var targetPosition: Int
-        get() = leftMotor.targetPosition
+        get() = leftSpeedMotor.targetPosition
         set(value) {
-            leftMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
-            leftMotor.targetPosition = value
-            rightMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
-            rightMotor.targetPosition = value
+            val limitedValue = value.coerceIn(RETRACTED, HIGH_BASKET)
+            leftSpeedMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
+            rightSpeedMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
+            leftSpeedMotor.targetPosition = limitedValue
+            rightSpeedMotor.targetPosition = limitedValue
+        }
+
+    var speedMotorSpeed: Double
+        get() = leftSpeedMotor.power
+        set(value) {
+            arrayOf(leftSpeedMotor, rightSpeedMotor).forEach {
+                it.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+            }
+            leftSpeedMotor.power = value
+            rightSpeedMotor.power = value
+        }
+
+    var allMotorSpeed: Double
+        get() = leftSpeedMotor.power
+        set(value) {
+            arrayOf(leftSpeedMotor, rightSpeedMotor, leftTorqueMotor, rightTorqueMotor).forEach {
+                it.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+            }
+            leftSpeedMotor.power = value
+            rightSpeedMotor.power = value
+            leftTorqueMotor.power = value
+            rightTorqueMotor.power = value
         }
 
     private fun extendTo(position: Int): Action {
@@ -36,7 +64,7 @@ class OuttakeSlide(hardwareMap: HardwareMap) {
                     targetPosition = position
                     initialized = true
                 }
-                return leftMotor.isBusy
+                return leftSpeedMotor.isBusy
             }
         }
     }
@@ -54,9 +82,14 @@ class OuttakeSlide(hardwareMap: HardwareMap) {
     }
 
 
+    @Config
     companion object {
-        const val HIGH_BASKET = 3000
-        const val LOW_BASKET = 2000
-        const val RETRACTED = 0
+        // TODO: Adjust limits
+        @JvmField
+        var HIGH_BASKET = 3000
+        @JvmField
+        var LOW_BASKET = 2000
+        @JvmField
+        var RETRACTED = 0
     }
 }
