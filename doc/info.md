@@ -70,6 +70,7 @@ stateDiagram-v2
 |:--------------:|:-------------------------------------------------------------------|
 |     Start      | Reset heading for field centric                                    |
 |       A        | Switch between tank and field centric                              |
+|       B        | Switch between fast and slow outtake mode                          |
 |       X        | Extend or retract intake slide, or cancel pick up from submersible |
 |       Y        | Pick up sample, extend outtake slide, or drop sample.              |
 | Left Joystick  | Move robot                                                         |
