@@ -212,6 +212,8 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
             gamepad1Utils.processUpdates(gamepad1)
             gamepad2Utils.processUpdates(gamepad2)
 
+            outtakeSlide.checkBottom()
+
             //#region Driving
             val speed =
                 (DEFAULT_SPEED + SPEED_BOOST * gamepad1.left_trigger - SPEED_REDUCTION * gamepad1.right_trigger)
@@ -245,6 +247,7 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
                     State.MOVING_CLAW_UP
                 ).contains(state)
             ) {
+                intakeClaw.grabberRotatorAngle += (if (gamepad1.left_bumper) 1 else 0 - if (gamepad1.right_bumper) 1 else 0).toDouble()
                 intakeSlide.targetPosition += (if (gamepad1.dpad_left) 1 else 0 - if (gamepad1.dpad_right) 1 else 0) * INTAKE_SLIDE_SPEED
             }
 

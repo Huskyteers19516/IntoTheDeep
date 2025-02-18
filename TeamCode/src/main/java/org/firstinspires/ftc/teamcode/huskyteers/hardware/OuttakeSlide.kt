@@ -12,12 +12,21 @@ class OuttakeSlide(hardwareMap: HardwareMap) {
     private val rightSpeedMotor = hardwareMap.dcMotor["rightSpeedOuttakeSlide"]
     private val leftTorqueMotor = hardwareMap.dcMotor["leftTorqueOuttakeSlide"]
     private val rightTorqueMotor = hardwareMap.dcMotor["rightTorqueOuttakeSlide"]
+    private val bottomSwitch = hardwareMap.digitalChannel["outtakeBottomSwitch"]
 
     init {
         arrayOf(leftSpeedMotor, rightSpeedMotor, leftTorqueMotor, rightTorqueMotor).forEach {
             it.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
             it.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
             it.targetPosition = 0
+        }
+    }
+
+    fun checkBottom() {
+        if (bottomSwitch.state) {
+            arrayOf(leftSpeedMotor, rightSpeedMotor, leftTorqueMotor, rightTorqueMotor).forEach {
+                it.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+            }
         }
     }
 
@@ -87,8 +96,10 @@ class OuttakeSlide(hardwareMap: HardwareMap) {
         // TODO: Adjust limits
         @JvmField
         var HIGH_BASKET = 3000
+
         @JvmField
         var LOW_BASKET = 2000
+
         @JvmField
         var RETRACTED = 0
     }

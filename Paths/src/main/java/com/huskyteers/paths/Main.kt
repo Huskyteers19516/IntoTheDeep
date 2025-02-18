@@ -1,10 +1,12 @@
 package com.huskyteers.paths
 
+import com.acmerobotics.roadrunner.NullAction
 import com.noahbres.meepmeep.MeepMeep
 import com.noahbres.meepmeep.MeepMeep.Background
 import com.noahbres.meepmeep.core.colorscheme.ColorScheme
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedDark
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder
+import com.noahbres.meepmeep.roadrunner.DriveTrainType
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity
 
 var meepMeep: MeepMeep = MeepMeep(600)
@@ -18,6 +20,7 @@ fun createRobot(colorScheme: ColorScheme): RoadRunnerBotEntity {
             Math.toRadians(30.0),
             WIDTH
         )
+        .setDriveTrainType(DriveTrainType.MECANUM)
         .setDimensions(WIDTH, HEIGHT)
         .setColorScheme(colorScheme)
         .build()
@@ -30,12 +33,21 @@ fun main() {
         backstageBot.drive
             .actionBuilder(StartInfo.Position.CloseToBasket.pose2d)
             .run {
-                closeToBasketToRightmostBrick(this).waitSeconds(delay)
+                closeToBasketToRightmostBrick(this)
             }
-            .run { toBasket(this).waitSeconds(delay) }
-            .run { basketToCenterBrick(this).waitSeconds(delay) }
-            .run { toBasket(this).waitSeconds(delay) }
-            .run { toParking(this) }
+            .run { toBasket(this) }
+            .run { basketToCenterBrick(this) }
+            .run { toBasket(this) }
+            .run {
+                basketToLeftmostBrick(
+                    this, { NullAction() })
+            }
+            .run {
+                toBasket(this)
+            }
+            .run {
+                toParking(this)
+            }
             .build()
     )
 

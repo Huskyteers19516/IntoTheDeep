@@ -43,8 +43,7 @@ fun basketToLeftmostBrick(
     // This is the optimal angle where the robot can just go straight and turn at an angle. Time efficient
     val angleOffset = atan2(yDistance, xDistance)
 
-    rotateClawTo(angleOffset)
-    val angle = Rotation2d.exp(Math.toRadians(180.0-angleOffset))
+    val angle = Rotation2d.exp(Math.toRadians(180.0 - angleOffset))
     println(Math.toDegrees((BASKET_ANGLE + Math.PI).log()))
     return actionBuilder
         .afterDisp(0.0, rotateClawTo(angle.toDouble()))

@@ -2,9 +2,7 @@ package org.firstinspires.ftc.teamcode.huskyteers.opmode
 
 import com.acmerobotics.roadrunner.*
 import com.acmerobotics.roadrunner.ftc.runBlocking
-import com.huskyteers.paths.StartInfo
-import com.huskyteers.paths.basketToLeftmostBrick
-import com.huskyteers.paths.closeToBasketToRightmostBrick
+import com.huskyteers.paths.*
 import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode
 import org.firstinspires.ftc.teamcode.huskyteers.hardware.IntakeClaw
 
@@ -14,6 +12,11 @@ class HuskyAuto(startInfo: StartInfo) : HuskyOpMode(startInfo) {
             startPose
         )
 
+    fun rotateIntakeGrabber(angle: Double) = SequentialAction(
+        InstantAction { intakeClaw.grabberRotatorAngle = angle },
+        SleepAction(IntakeClaw.ROTATOR_TIME)
+    )
+
     override fun runOpMode() {
         waitForStart()
         if (isStopRequested) return
@@ -22,16 +25,12 @@ class HuskyAuto(startInfo: StartInfo) : HuskyOpMode(startInfo) {
                 .run {
                     closeToBasketToRightmostBrick(this)
                 }
-                .run {
-                    basketToLeftmostBrick(
-                        this
-                    ) { angle ->
-                        SequentialAction(
-                            InstantAction { intakeClaw.grabberRotatorAngle = angle },
-                            SleepAction(IntakeClaw.ROTATOR_TIME)
-                        )
-                    }
-                }
+                .run { toBasket(this) }
+                .run { basketToCenterBrick(this) }
+                .run { toBasket(this) }
+                .run { basketToLeftmostBrick(this, ::rotateIntakeGrabber) }
+                .run { toBasket(this) }
+                .run { toParking(this) }
                 .build()
         )
     }
