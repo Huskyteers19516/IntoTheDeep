@@ -1,9 +1,8 @@
 package org.firstinspires.ftc.teamcode.huskyteers.hardware
 
-import com.acmerobotics.dashboard.config.Config
 import com.qualcomm.robotcore.hardware.HardwareMap
 
-@Config
+//@Config
 class OuttakeClaw(hardwareMap: HardwareMap) {
     private val leftRotatorServo = hardwareMap.servo["leftOuttakeClawRotator"]
     private val rightRotatorServo = hardwareMap.servo["rightOuttakeClawRotator"]
@@ -44,7 +43,7 @@ class OuttakeClaw(hardwareMap: HardwareMap) {
         grabberPosition = CLOSE_GRABBER_POSITION
     }
 
-    @Config
+    //    @Config
     companion object {
         @JvmField
         var ROTATOR_TIME = 1.0

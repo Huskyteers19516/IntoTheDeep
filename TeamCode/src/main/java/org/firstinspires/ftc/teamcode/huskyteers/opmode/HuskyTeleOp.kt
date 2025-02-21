@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.huskyteers.opmode
 
 import com.acmerobotics.dashboard.FtcDashboard
-import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.*
@@ -13,7 +12,6 @@ import org.firstinspires.ftc.teamcode.huskyteers.utils.GamepadUtils
 import kotlin.math.max
 
 
-@Config
 class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
     private val dash: FtcDashboard = FtcDashboard.getInstance()
 
@@ -34,10 +32,11 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
 
 
     override fun runOpMode() {
-        intakeSlide
-        outtakeSlide
-        intakeClaw
-        outtakeClaw
+//        intakeSlide
+//        outtakeSlide
+//        intakeClaw
+//        outtakeClaw
+        drive
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
         waitForStart()
@@ -340,7 +339,7 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
         }
     }
 
-    @Config
+    //        @Config
     companion object {
         @JvmField
         var OUTTAKE_SLIDE_USING_ALL_MOTORS = false

@@ -1,12 +1,11 @@
 package org.firstinspires.ftc.teamcode.huskyteers.hardware
 
-import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.Action
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
 
-@Config
+//@Config
 class OuttakeSlide(hardwareMap: HardwareMap) {
     private val leftSpeedMotor = hardwareMap.dcMotor["leftSpeedOuttakeSlide"]
     private val rightSpeedMotor = hardwareMap.dcMotor["rightSpeedOuttakeSlide"]
@@ -91,7 +90,7 @@ class OuttakeSlide(hardwareMap: HardwareMap) {
     }
 
 
-    @Config
+    //    @Config
     companion object {
         // TODO: Adjust limits
         @JvmField

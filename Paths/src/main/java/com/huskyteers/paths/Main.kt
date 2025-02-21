@@ -1,6 +1,6 @@
 package com.huskyteers.paths
 
-import com.acmerobotics.roadrunner.NullAction
+import com.acmerobotics.roadrunner.Action
 import com.noahbres.meepmeep.MeepMeep
 import com.noahbres.meepmeep.MeepMeep.Background
 import com.noahbres.meepmeep.core.colorscheme.ColorScheme
@@ -17,13 +17,22 @@ fun createRobot(colorScheme: ColorScheme): RoadRunnerBotEntity {
             60.0,
             60.0,
             Math.toRadians(180.0),
-            Math.toRadians(30.0),
+            Math.toRadians(60.0),
             WIDTH
         )
         .setDriveTrainType(DriveTrainType.MECANUM)
         .setDimensions(WIDTH, HEIGHT)
         .setColorScheme(colorScheme)
         .build()
+}
+
+fun logAction(prefix: String): (Double) -> Action {
+    return { thing: Double ->
+        println("$prefix: $thing")
+        Action {
+            false
+        }
+    }
 }
 
 fun main() {
@@ -33,17 +42,18 @@ fun main() {
         backstageBot.drive
             .actionBuilder(StartInfo.Position.CloseToBasket.pose2d)
             .run {
-                closeToBasketToRightmostBrick(this)
+                closeToBasketToRightmostBrick(this, logAction("Extending to"), logAction("Rotating claw to"))
             }
-            .run { toBasket(this) }
-            .run { basketToCenterBrick(this) }
-            .run { toBasket(this) }
+            .run { rotateToBasket(this) }
+            .run { rotateToCenterBrick(this, logAction("Extending to"), logAction("Rotating claw to")) }
+            .run { rotateToBasket(this) }
             .run {
-                basketToLeftmostBrick(
-                    this, { NullAction() })
+                rotateToLeftmostBrick(
+                    this, logAction("Extending to"), logAction("Rotating claw to")
+                )
             }
             .run {
-                toBasket(this)
+                rotateToBasket(this)
             }
             .run {
                 toParking(this)

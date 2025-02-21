@@ -20,17 +20,26 @@ class HuskyAuto(startInfo: StartInfo) : HuskyOpMode(startInfo) {
     override fun runOpMode() {
         waitForStart()
         if (isStopRequested) return
+
         runBlocking(
             actionBuilder(drive.localizer.pose)
                 .run {
-                    closeToBasketToRightmostBrick(this)
+                    closeToBasketToRightmostBrick(this, logAction("Extending to"), logAction("Rotating claw to"))
                 }
-                .run { toBasket(this) }
-                .run { basketToCenterBrick(this) }
-                .run { toBasket(this) }
-                .run { basketToLeftmostBrick(this, ::rotateIntakeGrabber) }
-                .run { toBasket(this) }
-                .run { toParking(this) }
+                .run { rotateToBasket(this) }
+                .run { rotateToCenterBrick(this, logAction("Extending to"), logAction("Rotating claw to")) }
+                .run { rotateToBasket(this) }
+                .run {
+                    rotateToLeftmostBrick(
+                        this, logAction("Extending to"), logAction("Rotating claw to")
+                    )
+                }
+                .run {
+                    rotateToBasket(this)
+                }
+                .run {
+                    toParking(this)
+                }
                 .build()
         )
     }

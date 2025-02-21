@@ -3,19 +3,87 @@ package com.huskyteers.paths
 import com.acmerobotics.roadrunner.*
 import kotlin.math.atan2
 
-fun closeToBasketToRightmostBrick(actionBuilder: TrajectoryActionBuilder): TrajectoryActionBuilder {
-    val angle = Rotation2d.exp(Math.toRadians(90.0))
+val basketVector = Vector2d(
+    TILE_LENGTH * -3,
+    TILE_LENGTH * -3
+) + BASKET_OFFSET - clawOffset(BASKET_ANGLE)
+
+fun closeToBasketToRightmostBrick(
+    actionBuilder: TrajectoryActionBuilder,
+    extendTo: (Double) -> Action,
+    rotateClawTo: (Double) -> Action
+): TrajectoryActionBuilder {
+    val basketPoseToBlock = (Vector2d(
+        TILE_LENGTH * -2,
+        TILE_LENGTH * -1
+    ) - Vector2d(BRICK_WIDTH, BRICK_LENGTH) / 2.0 - basketVector)
+    val angle = (basketPoseToBlock / basketPoseToBlock.norm()).angleCast()
+
+    val distance = basketPoseToBlock.norm()
     return actionBuilder.splineToSplineHeading(
         Pose2d(
-            Vector2d(
-                TILE_LENGTH * -2,
-                TILE_LENGTH * -1
-            ) - Vector2d(BRICK_WIDTH, BRICK_LENGTH) / 2.0 - clawOffset(angle),
+            basketVector,
             angle
         ),
         angle
     )
+        .stopAndAdd(
+            ParallelAction(
+                extendTo(distance),
+                SequentialAction(SleepAction(2.0), rotateClawTo(90 - Math.toDegrees(angle.toDouble())))
+            )
+        )
 }
+
+fun rotateToBasket(actionBuilder: TrajectoryActionBuilder): TrajectoryActionBuilder {
+    return actionBuilder
+        .turnTo(BASKET_ANGLE)
+}
+
+fun rotateToCenterBrick(
+    actionBuilder: TrajectoryActionBuilder,
+    extendTo: (Double) -> Action,
+    rotateClawTo: (Double) -> Action
+): TrajectoryActionBuilder {
+    val basketPoseToBlock = (Vector2d(
+        TILE_LENGTH * -2 - BRICK_DISTANCE,
+        TILE_LENGTH * -1
+    ) - Vector2d(BRICK_WIDTH, BRICK_LENGTH) / 2.0 - basketVector)
+    val angle = (basketPoseToBlock / basketPoseToBlock.norm()).angleCast()
+
+    val distance = basketPoseToBlock.norm()
+    return actionBuilder
+        .turnTo(angle)
+        .stopAndAdd(
+            ParallelAction(
+                extendTo(distance),
+                SequentialAction(SleepAction(2.0), rotateClawTo(270 - Math.toDegrees(angle.toDouble())))
+            )
+        )
+}
+
+fun rotateToLeftmostBrick(
+    actionBuilder: TrajectoryActionBuilder,
+    extendTo: (Double) -> Action,
+    rotateClawTo: (Double) -> Action
+): TrajectoryActionBuilder {
+    val basketPoseToBlock = (Vector2d(
+        TILE_LENGTH * -2 - BRICK_DISTANCE * 2,
+        TILE_LENGTH * -1
+    ) - Vector2d(BRICK_WIDTH, BRICK_LENGTH) / 2.0 - basketVector)
+    val angle = (basketPoseToBlock / basketPoseToBlock.norm()).angleCast()
+
+    val distance = basketPoseToBlock.norm()
+    return actionBuilder
+        .turnTo(angle)
+        .stopAndAdd(
+            ParallelAction(
+                extendTo(distance),
+                SequentialAction(SleepAction(2.0), rotateClawTo(270 - Math.toDegrees(angle.toDouble())))
+            )
+        )
+}
+
 
 fun basketToCenterBrick(actionBuilder: TrajectoryActionBuilder): TrajectoryActionBuilder {
     val angle = Rotation2d.exp(Math.toRadians(90.0))

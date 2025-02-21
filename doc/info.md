@@ -92,35 +92,41 @@ No controls
 
 | Name                    | Location      | Port |
 |-------------------------|---------------|------|
-| leftFront               | Control Hub   |      |
-| leftBack                | Control Hub   |      |
-| rightFront              | Control Hub   |      |
-| rightBack               | Control Hub   |      |
-| leftTorqueOuttakeSlide  | Expansion Hub |      |
-| leftSpeedOuttakeSlide   | Expansion Hub |      |
-| rightTorqueOuttakeSlide | Expansion Hub |      |
-| RightSpeedOuttakeSlide  | Expansion Hub |      |
+| leftFront               | Expansion Hub | 2    |
+| leftBack                | Expansion Hub | 3    |
+| rightFront              | Control Hub   | 1    |
+| rightBack               | Control Hub   | 0    |
+| leftTorqueOuttakeSlide  | Expansion Hub | 1    |
+| leftSpeedOuttakeSlide   | Expansion Hub | 0    |
+| rightTorqueOuttakeSlide | Control Hub   | 2    |
+| rightSpeedOuttakeSlide  | Control Hub   | 3    |
 
 ### Servos
 
 | Name                     | Location      | Port |
 |--------------------------|---------------|------|
-| leftIntakeSlide          | Expansion Hub |      |
-| rightIntakeSlide         | Control Hub   |      |
-| leftIntakeClawRotator    | Expansion Hub |      |
-| rightIntakeClawRotator   | Control Hub   |      |
-| intakeClawGrabber        | Control Hub   |      |
-| intakeClawGrabberRotator | Control Hub   |      |
-| leftOuttakeClawRotator   | Expansion Hub |      |
-| rightOuttakeClawRotator  | Control Hub   |      |
-| outtakeClawGrabber       | Control Hub   |      |
+| leftIntakeSlide          | Expansion Hub | 0    |
+| rightIntakeSlide         | Control Hub   | 0    |
+| leftIntakeClawRotator    | Expansion Hub | 1    |
+| rightIntakeClawRotator   | Control Hub   | 1    |
+| intakeClawGrabber        | Control Hub   | 2    |
+| intakeClawGrabberRotator | Control Hub   | 3    |
+| leftOuttakeClawRotator   | Expansion Hub | 2    |
+| rightOuttakeClawRotator  | Control Hub   | 4    |
+| outtakeClawGrabber       | Control Hub   | 5    |
 
-### Sensors
+### Analog Inputs
 
 | Name                    | Location      | Port |
 |-------------------------|---------------|------|
-| leftIntakeSlideEncoder  | Expansion Hub |      |
-| rightIntakeSlideEncoder | Control Hub   |      |
+| leftIntakeSlideEncoder  | Expansion Hub | 0    |
+| rightIntakeSlideEncoder | Control Hub   | 0    |
+
+### Digital Inputs
+
+| Name                | Location    | Port |
+|---------------------|-------------|------|
+| outtakeBottomSwitch | Control Hub | 0    |
 
 ## Class Diagram
 

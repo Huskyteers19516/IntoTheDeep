@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.huskyteers.hardware
 
-import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.Action
 import com.qualcomm.robotcore.hardware.HardwareMap
@@ -47,7 +46,7 @@ class IntakeSlide(hardwareMap: HardwareMap) {
         return extendTo(INTAKE_SLIDE_RETRACTION)
     }
 
-    @Config
+    //    @Config
     companion object {
         @JvmField
         var INTAKE_SLIDE_EXTENSION = 0.0

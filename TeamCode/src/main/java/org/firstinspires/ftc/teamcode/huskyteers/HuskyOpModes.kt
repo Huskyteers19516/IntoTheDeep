@@ -14,21 +14,20 @@ const val DISABLED: Boolean = false
 private fun metaForTeleOp(
     cls: Class<out OpMode?>,
     startInfo: StartInfo,
-    autoCls: Class<out OpMode?>
 ): OpModeMeta {
     return OpModeMeta.Builder()
-        .setName(cls.simpleName + " - " + startInfo.toString())
+        .setName(cls.simpleName + " - " + startInfo.color.name)
         .setGroup(GROUP)
         .setFlavor(OpModeMeta.Flavor.TELEOP)
-        .setTransitionTarget(autoCls.simpleName + " - " + startInfo.toString())
         .build()
 }
 
-private fun metaForAuto(cls: Class<out OpMode?>, startInfo: StartInfo): OpModeMeta {
+private fun metaForAuto(cls: Class<out OpMode?>, startInfo: StartInfo, teleOpCls: Class<out OpMode?>): OpModeMeta {
     return OpModeMeta.Builder()
         .setName(cls.simpleName + " - " + startInfo.toString())
         .setGroup(GROUP)
         .setFlavor(OpModeMeta.Flavor.AUTONOMOUS)
+        .setTransitionTarget(teleOpCls.simpleName + " - " + startInfo.color.name)
         .build()
 }
 
@@ -36,17 +35,20 @@ private fun metaForAuto(cls: Class<out OpMode?>, startInfo: StartInfo): OpModeMe
 fun register(manager: OpModeManager) {
     if (DISABLED) return
 
-    for (position in StartInfo.Position.entries.toTypedArray()) {
-        for (color in StartInfo.Color.entries.toTypedArray()) {
+    for (color in StartInfo.Color.entries.toTypedArray()) {
+        val teleOpStartConfiguration = StartInfo(color, StartInfo.Position.None)
+        manager.register(
+            metaForTeleOp(
+                HuskyTeleOp::class.java, teleOpStartConfiguration,
+            ), HuskyTeleOp(teleOpStartConfiguration)
+        )
+
+        for (position in StartInfo.Position.entries.toTypedArray()) {
             val startConfiguration = StartInfo(color, position)
             manager.register(
-                metaForTeleOp(
-                    HuskyTeleOp::class.java, startConfiguration,
-                    HuskyAuto::class.java
-                ), HuskyTeleOp(startConfiguration)
-            )
-            manager.register(
-                metaForAuto(HuskyAuto::class.java, startConfiguration),
+                metaForAuto(
+                    HuskyAuto::class.java, startConfiguration, HuskyAuto::class.java
+                ),
                 HuskyAuto(startConfiguration)
             )
         }
