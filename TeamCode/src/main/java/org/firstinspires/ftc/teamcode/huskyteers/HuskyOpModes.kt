@@ -1,10 +1,17 @@
 package org.firstinspires.ftc.teamcode.huskyteers
 
+import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.config.reflection.ReflectionConfig
+import com.acmerobotics.dashboard.config.variable.CustomVariable
 import com.huskyteers.paths.StartInfo
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.OpModeManager
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegistrar
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.IntakeClaw
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.IntakeSlide
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.OuttakeClaw
+import org.firstinspires.ftc.teamcode.huskyteers.hardware.OuttakeSlide
 import org.firstinspires.ftc.teamcode.huskyteers.opmode.HuskyAuto
 import org.firstinspires.ftc.teamcode.huskyteers.opmode.HuskyTeleOp
 
@@ -52,6 +59,21 @@ fun register(manager: OpModeManager) {
                 HuskyAuto(startConfiguration)
             )
         }
+        FtcDashboard.getInstance().withConfigRoot { configRoot: CustomVariable ->
+            for (c in listOf(
+                HuskyTeleOp::class.java,
+                OuttakeClaw::class.java,
+                IntakeClaw::class.java,
+                OuttakeSlide::class.java,
+                IntakeSlide::class.java,
+            )) {
+                configRoot.putVariable(
+                    c.simpleName,
+                    ReflectionConfig.createVariableFromClass(c)
+                )
+            }
+        }
+
     }
 }
 

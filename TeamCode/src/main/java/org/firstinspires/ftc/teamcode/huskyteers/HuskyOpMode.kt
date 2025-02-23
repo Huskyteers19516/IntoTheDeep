@@ -17,18 +17,38 @@ import kotlin.math.sin
  * Base class for any OpMode, whether it's TeleOp or Autonomous.
  */
 abstract class HuskyOpMode(var startInfo: StartInfo) : LinearOpMode() {
-    val drive: MecanumDrive by lazy { MecanumDrive(hardwareMap, startInfo.position.pose2d) }
-    val intakeClaw by lazy {
-        IntakeClaw(hardwareMap)
+    lateinit var drive: MecanumDrive
+    lateinit var intakeClaw: IntakeClaw
+    lateinit var intakeSlide: IntakeSlide
+    lateinit var outtakeClaw: OuttakeClaw
+    lateinit var outtakeSlide: OuttakeSlide
+
+    fun initializeEverything() {
+        initDrive()
+        initIntakeClaw()
+        initIntakeSlide()
+        initOuttakeClaw()
+        initOuttakeSlide()
     }
-    val intakeSlide by lazy {
-        IntakeSlide(hardwareMap)
+
+    fun initDrive() {
+        drive = MecanumDrive(hardwareMap, startInfo.position.pose2d)
     }
-    val outtakeClaw by lazy {
-        OuttakeClaw(hardwareMap)
+
+    fun initIntakeClaw() {
+        intakeClaw = IntakeClaw(hardwareMap)
     }
-    val outtakeSlide by lazy {
-        OuttakeSlide(hardwareMap)
+
+    fun initIntakeSlide() {
+        intakeSlide = IntakeSlide(hardwareMap)
+    }
+
+    fun initOuttakeClaw() {
+        outtakeClaw = OuttakeClaw(hardwareMap)
+    }
+
+    fun initOuttakeSlide() {
+        outtakeSlide = OuttakeSlide(hardwareMap)
     }
 
 

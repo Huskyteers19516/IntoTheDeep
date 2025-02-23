@@ -111,8 +111,7 @@ No controls
 | rightIntakeClawRotator   | Control Hub   | 1    |
 | intakeClawGrabber        | Control Hub   | 2    |
 | intakeClawGrabberRotator | Control Hub   | 3    |
-| leftOuttakeClawRotator   | Expansion Hub | 2    |
-| rightOuttakeClawRotator  | Control Hub   | 4    |
+| outtakeClawRotator       | Expansion Hub | 2    |
 | outtakeClawGrabber       | Control Hub   | 5    |
 
 ### Analog Inputs

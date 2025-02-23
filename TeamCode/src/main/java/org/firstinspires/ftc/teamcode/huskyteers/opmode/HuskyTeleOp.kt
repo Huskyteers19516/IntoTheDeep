@@ -16,10 +16,7 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
     private val dash: FtcDashboard = FtcDashboard.getInstance()
 
     enum class State {
-        RETRACTED,
-        EXTENDING,
-        EXTENDED,
-        RETRACTING,
+        AT_BOTTOM,
         MOVING_CLAW_DOWN,
         MOVING_CLAW_UP,
         CLAW_DOWN,
@@ -32,11 +29,7 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
 
 
     override fun runOpMode() {
-//        intakeSlide
-//        outtakeSlide
-//        intakeClaw
-//        outtakeClaw
-        drive
+        initializeEverything()
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
         waitForStart()
@@ -67,51 +60,11 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
 
         var currentAction: Action? = null
 
-        var state = State.RETRACTED
-
-        gamepad1Utils.addRisingEdge("x") {
-            // Extend or retract the intake slide
-            if (state == State.RETRACTED) {
-                state = State.EXTENDING
-                currentAction = SequentialAction(
-                    intakeSlide.extend(),
-                    InstantAction {
-                        intakeClaw.open()
-                        state = State.EXTENDED
-                    }
-                )
-            } else if (state == State.EXTENDED) {
-                state = State.RETRACTING
-                currentAction = SequentialAction(
-                    InstantAction {
-                        intakeClaw.rotateUp()
-                    },
-                    intakeSlide.retract(),
-                    InstantAction {
-                        state = State.RETRACTED
-                    }
-                )
-            } else if (state == State.PICKED_UP) {
-                state = State.EXTENDING
-                currentAction = SequentialAction(
-                    InstantAction {
-                        outtakeClaw.open()
-                    },
-                    SleepAction(OuttakeClaw.GRAB_TIME),
-                    intakeSlide.extend(),
-                    InstantAction {
-                        intakeClaw.open()
-                    },
-                    InstantAction {
-                        state = State.EXTENDED
-                    }
-                )
-            }
-        }
+        var state = State.AT_BOTTOM
 
         gamepad1Utils.addRisingEdge("dpad_down") {
             // Move the intake claw down
-            if (state == State.EXTENDED) {
+            if (arrayOf(State.AT_BOTTOM, State.MOVING_CLAW_UP).contains(state)) {
                 state = State.MOVING_CLAW_DOWN
                 currentAction = SequentialAction(
                     InstantAction {
@@ -134,18 +87,57 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
 
         gamepad1Utils.addRisingEdge("dpad_up") {
             // Move the intake claw up
-            if (state == State.CLAW_DOWN) {
+            if (arrayOf(State.CLAW_DOWN, State.MOVING_CLAW_DOWN).contains(state)) {
                 currentAction = SequentialAction(
                     InstantAction {
                         intakeClaw.rotateUp()
                     }, SleepAction(IntakeClaw.ROTATOR_TIME), InstantAction {
-                        state = State.EXTENDED
+                        state = State.AT_BOTTOM
                     }
                 )
             }
         }
 
         gamepad1Utils.addRisingEdge("y") {
+            if (state == State.PICKED_UP) {
+                state = State.GOING_TO_TOP
+                currentAction = SequentialAction(
+                    InstantAction {
+                        outtakeClaw.close()
+                    },
+                    SleepAction(OuttakeClaw.GRAB_TIME),
+                    InstantAction {
+                        intakeClaw.open()
+                    },
+                    SleepAction(IntakeClaw.GRAB_TIME),
+                    outtakeSlide.extendToLowBasket(),
+                    InstantAction { outtakeClaw.rotateUp() },
+                    SleepAction(OuttakeClaw.ROTATOR_TIME),
+                    InstantAction {
+                        state = State.AT_TOP
+                    }
+                )
+            } else if (state == State.AT_TOP) {
+                state = State.DROPPING
+                currentAction = SequentialAction(
+                    InstantAction {
+                        outtakeClaw.open()
+                    },
+                    SleepAction(OuttakeClaw.GRAB_TIME),
+                    outtakeSlide.extendToLowBasket(),
+                    InstantAction {
+                        outtakeClaw.rotateDown()
+                    },
+                    SleepAction(OuttakeClaw.ROTATOR_TIME),
+                    outtakeSlide.retract(),
+                    InstantAction {
+                        state = State.AT_BOTTOM
+                    }
+                )
+            }
+        }
+
+        gamepad1Utils.addRisingEdge("x") {
             if (State.CLAW_DOWN == state) {
                 // Grab sample from submersible and retract into robot
                 state = State.PICKING_UP
@@ -156,47 +148,23 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
                         intakeClaw.rotateUp()
                         outtakeClaw.rotateDown()
                     },
-                    intakeSlide.retract(),
-                    InstantAction {
-                        outtakeClaw.close()
-                    },
-                    SleepAction(OuttakeClaw.GRAB_TIME),
                     InstantAction {
                         state = State.PICKED_UP
                     }
                 )
             } else if (state == State.PICKED_UP) {
-                // Grab sample with outtake claw and go to top
-                state = State.GOING_TO_TOP
+                // Drop sample from claw
+                state = State.MOVING_CLAW_DOWN
                 currentAction = SequentialAction(
+                    InstantAction { intakeClaw.rotateDown() },
+                    SleepAction(IntakeClaw.ROTATOR_TIME),
                     InstantAction {
-                        outtakeClaw.close()
                         intakeClaw.open()
-                    },
-                    SleepAction(max(OuttakeClaw.GRAB_TIME, IntakeClaw.GRAB_TIME)),
-                    outtakeSlide.extendToHighBasket(),
-                    InstantAction {
-                        outtakeClaw.rotateUp()
-                    },
-                    SleepAction(OuttakeClaw.ROTATOR_TIME),
-                    InstantAction {
-                        state = State.AT_TOP
-                    }
-                )
-            } else if (state == State.AT_TOP) {
-                // Drop sample into basket and retract outtake slide
-                state = State.DROPPING
-                currentAction = SequentialAction(
-                    InstantAction {
                         outtakeClaw.open()
                     },
-                    SleepAction(OuttakeClaw.GRAB_TIME),
+                    SleepAction(max(OuttakeClaw.GRAB_TIME, IntakeClaw.GRAB_TIME)),
                     InstantAction {
-                        outtakeClaw.rotateDown()
-                    },
-                    outtakeSlide.retract(),
-                    InstantAction {
-                        state = State.RETRACTED
+                        state = State.CLAW_DOWN
                     }
                 )
             }
@@ -240,14 +208,15 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
             //#region Slide Controls
 
             if (arrayOf(
-                    State.EXTENDED,
+                    State.AT_BOTTOM,
                     State.CLAW_DOWN,
                     State.MOVING_CLAW_DOWN,
                     State.MOVING_CLAW_UP
                 ).contains(state)
             ) {
                 intakeClaw.grabberRotatorAngle += (if (gamepad1.left_bumper) 1 else 0 - if (gamepad1.right_bumper) 1 else 0).toDouble()
-                intakeSlide.targetPosition += (if (gamepad1.dpad_left) 1 else 0 - if (gamepad1.dpad_right) 1 else 0) * INTAKE_SLIDE_SPEED
+                intakeSlide.power =
+                    (if (gamepad1.dpad_left) 1 else 0 - if (gamepad1.dpad_right) 1 else 0) * INTAKE_SLIDE_SPEED
             }
 
             if (state == State.AT_TOP) {
@@ -324,7 +293,7 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
             telemetry.addData("State", state.name)
             telemetry.addData("Claw Action", currentAction?.toString() ?: "No action")
             telemetry.addData("Intake Slide Position", intakeSlide.position)
-            telemetry.addData("Intake Slide Target Position", intakeSlide.targetPosition)
+            telemetry.addData("Intake Slide Power", intakeSlide.power)
             telemetry.addData("Outtake Slide Position", outtakeSlide.position)
             telemetry.addData("Outtake Slide Target Position", outtakeSlide.targetPosition)
             telemetry.addData("Intake Claw Rotator Angle", intakeClaw.rotatorAngle)
@@ -332,6 +301,7 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
             telemetry.addData("Intake Claw Grabber Rotator Angle", intakeClaw.grabberRotatorAngle)
             telemetry.addData("Outtake Claw Rotator Angle", outtakeClaw.rotatorAngle)
             telemetry.addData("Outtake Claw Grabber Position", outtakeClaw.grabberPosition)
+            telemetry.addData("Intake Slide Zero Sensor", intakeSlide.zeroSensor.isPressed)
             //#endregion
 
             telemetry.update()
@@ -345,7 +315,7 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
         var OUTTAKE_SLIDE_USING_ALL_MOTORS = false
 
         @JvmField
-        var OUTTAKE_SLIDE_SUPER_BRAKE = true
+        var OUTTAKE_SLIDE_SUPER_BRAKE = false
 
         @JvmField
         var OUTTAKE_SLIDE_SLOW_POWER = 0.5
@@ -354,7 +324,7 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
         var OUTTAKE_SLIDE_FAST_POWER = 1.0
 
         @JvmField
-        var INTAKE_SLIDE_SPEED = 0.01
+        var INTAKE_SLIDE_SPEED = 1.0
 
         @JvmField
         var DEFAULT_SPEED = 0.7

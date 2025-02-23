@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.huskyteers.hardware
 
 import com.qualcomm.robotcore.hardware.HardwareMap
+import com.qualcomm.robotcore.hardware.Servo
 
 //@Config
 class IntakeClaw(hardwareMap: HardwareMap) {
@@ -10,6 +11,7 @@ class IntakeClaw(hardwareMap: HardwareMap) {
     private val grabberRotatorServo = hardwareMap.servo["intakeClawGrabberRotator"]
 
     init {
+        leftRotatorServo.direction = Servo.Direction.REVERSE
         leftRotatorServo.scaleRange(0.0, 180.0)
         rightRotatorServo.scaleRange(0.0, 180.0)
         grabberRotatorServo.scaleRange(0.0, 360.0)
@@ -65,9 +67,9 @@ class IntakeClaw(hardwareMap: HardwareMap) {
         var ROTATE_UP_ANGLE = 180.0
 
         @JvmField
-        var OPEN_GRABBER_POSITION = 0.0
+        var OPEN_GRABBER_POSITION = 1.0
 
         @JvmField
-        var CLOSE_GRABBER_POSITION = 1.0
+        var CLOSE_GRABBER_POSITION = 0.0
     }
 }

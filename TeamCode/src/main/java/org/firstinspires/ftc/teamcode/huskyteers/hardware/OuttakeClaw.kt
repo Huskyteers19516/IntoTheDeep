@@ -4,20 +4,17 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 
 //@Config
 class OuttakeClaw(hardwareMap: HardwareMap) {
-    private val leftRotatorServo = hardwareMap.servo["leftOuttakeClawRotator"]
-    private val rightRotatorServo = hardwareMap.servo["rightOuttakeClawRotator"]
+    private val rotatorServo = hardwareMap.servo["outtakeClawRotator"]
     private val grabberServo = hardwareMap.servo["outtakeClawGrabber"]
 
     init {
-        leftRotatorServo.scaleRange(0.0, 180.0)
-        rightRotatorServo.scaleRange(0.0, 180.0)
+        rotatorServo.scaleRange(0.0, 180.0)
     }
 
     var rotatorAngle: Double
-        get() = leftRotatorServo.position
+        get() = rotatorServo.position
         private set(value) {
-            leftRotatorServo.position = value
-            rightRotatorServo.position = value
+            rotatorServo.position = value
         }
 
     var grabberPosition: Double
@@ -58,9 +55,9 @@ class OuttakeClaw(hardwareMap: HardwareMap) {
         var ROTATE_UP_ANGLE = 180.0
 
         @JvmField
-        var OPEN_GRABBER_POSITION = 0.0
+        var OPEN_GRABBER_POSITION = 0.0889
 
         @JvmField
-        var CLOSE_GRABBER_POSITION = 1.0
+        var CLOSE_GRABBER_POSITION = 0.2989
     }
 }
