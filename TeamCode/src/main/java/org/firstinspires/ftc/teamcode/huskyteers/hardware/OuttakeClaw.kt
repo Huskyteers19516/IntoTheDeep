@@ -52,7 +52,7 @@ class OuttakeClaw(hardwareMap: HardwareMap) {
         var ROTATE_DOWN_ANGLE = 0.0
 
         @JvmField
-        var ROTATE_UP_ANGLE = 180.0
+        var ROTATE_UP_ANGLE = 90.0
 
         @JvmField
         var OPEN_GRABBER_POSITION = 0.0889

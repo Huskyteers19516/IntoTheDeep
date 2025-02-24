@@ -31,6 +31,12 @@ class OuttakeSlide(hardwareMap: HardwareMap) {
 
     val position = leftSpeedMotor.currentPosition
 
+    fun resetEncoder() {
+        arrayOf(leftSpeedMotor, rightSpeedMotor).forEach {
+            it.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        }
+    }
+
     var targetPosition: Int
         get() = leftSpeedMotor.targetPosition
         set(value) {
@@ -46,9 +52,16 @@ class OuttakeSlide(hardwareMap: HardwareMap) {
         set(value) {
             arrayOf(leftSpeedMotor, rightSpeedMotor).forEach {
                 it.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+                it.power = if (position < HIGH_BASKET) value else 0.0
             }
-            leftSpeedMotor.power = value
-            rightSpeedMotor.power = value
+        }
+    var torqueMotorSpeed: Double
+        get() = leftTorqueMotor.power
+        set(value) {
+            arrayOf(leftTorqueMotor, rightTorqueMotor).forEach {
+                it.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+                it.power = value
+            }
         }
 
     var allMotorSpeed: Double

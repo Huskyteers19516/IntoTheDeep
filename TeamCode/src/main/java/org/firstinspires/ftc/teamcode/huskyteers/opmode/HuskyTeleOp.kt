@@ -321,7 +321,7 @@ class HuskyTeleOp(startInfo: StartInfo) : HuskyOpMode(startInfo) {
         var OUTTAKE_SLIDE_SLOW_POWER = 0.5
 
         @JvmField
-        var OUTTAKE_SLIDE_FAST_POWER = 1.0
+        var OUTTAKE_SLIDE_FAST_POWER = 0.2
 
         @JvmField
         var INTAKE_SLIDE_SPEED = 1.0

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.huskyteers.opmode
 
 import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.Pose2d
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.teamcode.huskyteers.HuskyOpMode
 import org.firstinspires.ftc.teamcode.huskyteers.utils.GamepadUtils
 
 
+@Config
 @TeleOp
 class NewTeleOp : HuskyOpMode(StartInfo.empty()) {
     private val dash: FtcDashboard = FtcDashboard.getInstance()
@@ -78,8 +80,12 @@ class NewTeleOp : HuskyOpMode(StartInfo.empty()) {
 
         }
 
-        gamepad1Utils.addRisingEdge("y") {
-            intakeClaw.open()
+        gamepad2Utils.addRisingEdge("y") {
+            outtakeClaw.open()
+        }
+
+        gamepad2Utils.addRisingEdge("b") {
+            outtakeSlide.resetEncoder()
         }
 
 
@@ -95,8 +101,7 @@ class NewTeleOp : HuskyOpMode(StartInfo.empty()) {
             outtakeSlide.checkBottom()
 
             //#region Driving
-            val speed =
-                (DEFAULT_SPEED + SPEED_BOOST * gamepad1.left_trigger - SPEED_REDUCTION * gamepad1.right_trigger)
+            val speed = 1.0
 
             if (usingFieldCentric) {
                 telemetry.addData("Drive Mode", "Field Centric")
@@ -124,11 +129,11 @@ class NewTeleOp : HuskyOpMode(StartInfo.empty()) {
             intakeSlide.power =
                 (if (gamepad1.dpad_left) 1 else 0 - if (gamepad1.dpad_right) 1 else 0) * INTAKE_SLIDE_SPEED
 
-            val outtakeSpeed = if (gamepad1.dpad_left) 1.0 else 0.0 - if (gamepad1.dpad_right) 1.0 else 0.0
+            val outtakeSpeed = if (gamepad2.dpad_left) 1.0 else 0.0 - if (gamepad2.dpad_right) 1.0 else 0.0
 
             if (OUTTAKE_SLIDE_USING_ALL_MOTORS) {
-                outtakeSlide.allMotorSpeed =
-                    outtakeSpeed * OUTTAKE_SLIDE_FAST_POWER
+                outtakeSlide.torqueMotorSpeed =
+                    outtakeSpeed * 1.0
             } else {
                 outtakeSlide.speedMotorSpeed =
                     outtakeSpeed * OUTTAKE_SLIDE_FAST_POWER
@@ -204,7 +209,7 @@ class NewTeleOp : HuskyOpMode(StartInfo.empty()) {
         }
     }
 
-    //        @Config
+    @Config
     companion object {
         @JvmField
         var OUTTAKE_SLIDE_USING_ALL_MOTORS = false
@@ -216,7 +221,7 @@ class NewTeleOp : HuskyOpMode(StartInfo.empty()) {
         var OUTTAKE_SLIDE_SLOW_POWER = 0.5
 
         @JvmField
-        var OUTTAKE_SLIDE_FAST_POWER = 1.0
+        var OUTTAKE_SLIDE_FAST_POWER = 0.7
 
         @JvmField
         var INTAKE_SLIDE_SPEED = 1.0
